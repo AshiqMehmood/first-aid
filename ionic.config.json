@@ -1,0 +1,7 @@
+{
+  "name": "First Aid",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react"
+}
