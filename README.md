@@ -7,9 +7,10 @@ An accident detection system which collects realtime data from sensors installed
 #### To run locally
 1. Install node & npm 
 2. Go to directory and run 
-    *npm install
-    *npm start
+    * npm install
+    * npm start
 
-### For generating build *follow Ionic documentation
+### For generating build 
+   * follow Ionic documentation
 
 
