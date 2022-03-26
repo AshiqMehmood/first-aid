@@ -3,9 +3,8 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
+  top: 10%;
+  }
 
 .container strong {
   font-size: 20px;
