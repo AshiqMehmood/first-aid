@@ -21,3 +21,11 @@
 .container a {
   text-decoration: none;
 }
+
+ion-badge {
+  transform: translateY(-10px);
+}
+
+ion-item {
+  cursor: pointer;
+}

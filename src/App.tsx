@@ -1,8 +1,10 @@
-import { IonApp, IonRouterOutlet, IonSplitPane, setupIonicReact } from '@ionic/react';
+import { IonApp, IonRouterOutlet, setupIonicReact, IonTabs, IonTabBar,
+  IonTabButton,  IonLabel, IonBadge, IonIcon } from '@ionic/react';
+import { calendar, personCircle, map, informationCircle } from 'ionicons/icons';
 import { IonReactRouter } from '@ionic/react-router';
 import { Redirect, Route } from 'react-router-dom';
-import Menu from './components/Menu';
 import Page from './pages/Page';
+import Login from './pages/Login';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -27,22 +29,33 @@ setupIonicReact();
 
 const App: React.FC = () => {
   return (
-    <IonApp>
-      <IonReactRouter>
-        <IonSplitPane contentId="main">
-          <Menu />
+        <IonApp>
           <IonRouterOutlet id="main">
-            <Route path="/" exact={true}>
-              <Redirect to="/page/Home" />
-            </Route>
-            <Route path="/page/:name" exact={true}>
-              <Page />
-            </Route>
+            <IonReactRouter>  
+                  <Route path="/login" exact={true}>
+                    <Login />
+                  </Route>
+                  <Route path="/" exact={true}>
+                    <Redirect to="/login" />
+                  </Route>    
+                  <Route path="/page/Home" exact={true}>
+                    <Page />
+                  </Route> 
+                  <Route path="/page/Activity" exact={true}>
+                    <Page />
+                  </Route>
+                  <Route path="/page/Map" exact={true}>
+                    <Page />
+                  </Route>
+                  <Route path="/page/Settings" exact={true}>
+                    <Page />
+                  </Route>
+            </IonReactRouter>
+            
           </IonRouterOutlet>
-        </IonSplitPane>
-      </IonReactRouter>
-    </IonApp>
-  );
+          
+        </IonApp>
+      )
 };
 
 export default App;

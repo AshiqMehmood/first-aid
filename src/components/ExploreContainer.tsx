@@ -1,100 +1,84 @@
 import { useEffect, useState } from 'react';
-import { 
-  PushNotificationSchema, 
-  PushNotifications, 
-  Token, 
-  ActionPerformed, 
-} from '@capacitor/push-notifications';
-import { Capacitor } from '@capacitor/core';
-import { Toast } from "@capacitor/toast";
-import { IonButton, IonListHeader, IonList, IonText, IonLabel, IonItem, IonContent } from "@ionic/react"
+import {useHistory} from 'react-router-dom';
+import { IonButton, IonItem, IonContent, IonIcon,
+  IonButtons, IonHeader, IonPage, IonTitle, IonToolbar,  IonBadge, IonModal } from "@ionic/react"
+  import { closeCircleOutline, closeOutline, notificationsSharp, personCircleOutline} from "ionicons/icons"
+import firebaseModules  from "../firebaseService";
+import useStore from "../store";
+import { App } from "@capacitor/app";
+import Home from './Home';
+import Activity from './Activity';
+import Map from './Map';
+import Settings from './Settings';
+import Login from '../pages/Login';
 import './ExploreContainer.css';
+
+const { db } = firebaseModules;
 
 interface ContainerProps {
   name: string;
 }
 
 const ExploreContainer: React.FC<ContainerProps> = ({ name }) => {
-  const nullEntry: any[] = []
-  const [notifications, setNotifications] = useState(nullEntry);
+  const {username, isLoggedIn, setLogin, setUsername, isModalOpen, setModalOpen} = useStore();
+  const history = useHistory();
 
-  const isPushNotificationAvailable = Capacitor.isPluginAvailable('PushNotifications');
-
-  useEffect(() => {
-    console.info('is PushNotification available ? ', isPushNotificationAvailable)
-    if(isPushNotificationAvailable) {
-      PushNotifications.checkPermissions().then((res) => {
-        if (res.receive !== 'granted') {
-          PushNotifications.requestPermissions().then((res) => {
-            if (res.receive === 'denied') {
-              showToast('Push Notification permission denied');
-            }
-            else {
-              showToast('Push Notification permission granted');
-              registerPush();
-            }
-          });
-        }
-        else {
-              registerPush();
-        }
-      });
+  const tabToRender = (name:string) => {
+    switch(name) {
+      case 'Home': return <Home />; break;
+      case 'Activity': return <Activity />; break;
+      case 'Map': return <Map />; break;
+      case 'Settings': return <Settings />; break;
+      default: return <Home />;
     }
-  }, []);
-
-  const registerPush = async() => {
-    console.log('>> Initializing App ...');
-    if(isPushNotificationAvailable) {
-      await PushNotifications.register()
-    await PushNotifications.addListener('registration', (token: Token) => {
-      console.info('Registration token', token.value);
-      showToast('Push registration success !')
-    });
-    await PushNotifications.addListener('registrationError', (err:any) => {
-      console.info('Registration failed', err)
-    });
-    await PushNotifications.addListener('pushNotificationReceived', (notif: PushNotificationSchema) => {
-      console.log('Recieved Push notification !!!')
-      setNotifications([...notifications, {id: notif.id, title: notif.title, body: notif.body, type: 'foreground'}])
-    });
-    await PushNotifications.addListener('pushNotificationActionPerformed', (notif: ActionPerformed) => {
-      console.log('user tapped on notification ...!')
-      setNotifications([...notifications, { id: notif.notification.data.id, title: notif.notification.data.title, body: notif.notification.data.body, type: 'action' }])    
-    });
-    }
-
   }
-
-  const showToast = async (msg: string) => {
-    await Toast.show({
-        text: msg
-    })
-}
-
   return (
-    <IonContent>
-      <IonButton expand="block" onClick={() => registerPush()}>Register for Push</IonButton>
-      <IonListHeader mode="md" lines="inset">
-                    <IonLabel>Notifications</IonLabel>
-                </IonListHeader>
-                {notifications.length !== 0 &&
-                    <IonList>
+    <IonPage>
+      <IonHeader>
+                <IonToolbar color="primary">
+                  <IonButtons slot="start">
+                    <IonButton onClick={async () => {
+                      try {
+                        await App.exitApp()
+                      }
+                      catch(err) {
+                        console.log('Cannot close in web mode', err)
+                      }
+                    }}>
+                      <IonIcon slot="icon-only" icon={closeOutline}/>
+                    </IonButton>
+                  </IonButtons>
+                  
+                    <IonButtons slot="end">
+                      <IonItem  lines="none" color="primary" slot="end" onClick={() => alert('notification panel')}>
+                        <IonIcon size="small" icon={notificationsSharp}/>
+                        <IonBadge color="danger">7</IonBadge>
+                      </IonItem>
+                      <IonButton onClick={async () => {
+                        await setLogin(false)
+                        await setUsername('')
+                        await setModalOpen(true)
+                      }}>
+                        <IonIcon slot="icon-only" icon={personCircleOutline}/>
+                      </IonButton>
+                    </IonButtons>
+                    <IonTitle>{name}</IonTitle>
+                </IonToolbar>
+          </IonHeader>
 
-                        {notifications.map((notif: any) =>
-                            <IonItem key={notif.id}>
-                                <IonLabel>
-                                    <IonText>
-                                        <h3 className="notif-title">{notif.title}</h3>
-                                    </IonText>
-                                    <p>{notif.body}</p>
-                                    {notif.type==='foreground' && <p>This data was received in foreground</p>}
-                                    {notif.type==='action' && <p>This data was received on tap</p>}
-                                </IonLabel>
-                            </IonItem>
-                        )}
-                    </IonList>}
+        <IonContent fullscreen>
+            <IonModal
+              isOpen={!isLoggedIn}
+              //onDidDismiss={() => setModalOpen(false)}
+              //swipeToClose={true}
+              //presentingElement={router || undefined}
+            >
+                <Login />
+            </IonModal>
 
-    </IonContent>
+            {tabToRender(name)}
+        </IonContent>                    
+    </IonPage>
   );
 };
 

@@ -29,23 +29,18 @@ const appPages: AppPage[] = [
     mdIcon: mailSharp
   },
   {
-    title: 'Settings',
-    url: '/page/Settings',
-    iosIcon: paperPlaneOutline,
-    mdIcon: settingsSharp
-  },
-  {
     title: 'Contacts',
     url: '/page/Contacts',
     iosIcon: heartOutline,
     mdIcon: heartSharp
   },
   {
-    title: 'Reminders',
-    url: '/page/Archived',
-    iosIcon: archiveOutline,
-    mdIcon: archiveSharp
+    title: 'Settings',
+    url: '/page/Settings',
+    iosIcon: paperPlaneOutline,
+    mdIcon: settingsSharp
   },
+
 ];
 
 const labels = ['Family', 'Friends', 'Notes', 'Work', 'Emergency', 'Reminders'];
