@@ -1,0 +1,15 @@
+.parent {
+    width: 200px;
+    height: 200px;
+    border: 4px solid rgba(0,0,0,0.1);
+    border-radius: 50%;
+    margin: 40px;
+  }
+  
+  .item {
+    width: 50px;
+    height: 50px;
+    background-color: red;
+    border-radius: 50%;
+    offset-path: path("M100,0 A100,100 0 1,1 100,200 A100,100 0 1,1 100,0");
+  }

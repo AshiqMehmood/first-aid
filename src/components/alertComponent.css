@@ -1,0 +1,119 @@
+.custom-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #efefef;
+    border: none;
+    border-radius: 50%;
+    color: #444;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: .2rem;
+    outline: none;
+    cursor: pointer;
+    height:50px;
+    transition: .2s ease-in-out;
+    box-shadow: -6px -6px 14px rgba(134, 115, 115, 0.7),
+                -6px -6px 10px rgba(255, 255, 255, .5),
+                6px 6px 8px rgba(255, 255, 255, .075),
+                6px 6px 10px rgba(0, 0, 0, .15);
+  }
+
+ .custom-button:active {
+    box-shadow: inset -2px -2px 6px rgba(255, 255, 255, .7),
+                inset -2px -2px 4px rgba(255, 255, 255, .5),
+                inset 2px 2px 2px rgba(255, 255, 255, .075),
+                inset 2px 2px 4px rgba(0, 0, 0, .15);
+  }
+
+#tick-container {
+      width: 4.8em;
+      height: 4.8em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+      margin: 0;
+}  
+
+#tick-circle {
+   position:absolute;
+   border-radius: 50%;
+   background-color: #3880ff;
+   width: 4em;
+   height: 4em;
+   opacity: 0;
+   animation: scaleIn 1s 4 cubic-bezier(.36, .11, .89, .32);
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(.4, .4);
+        opacity: .5;
+    } 
+    to {
+        transform: scale(.8, .8);
+        opacity:0;
+    }
+}
+
+#tick-mark {
+    z-index: 99;
+    position: relative;
+    display: inline-block;
+    width: .8em;
+    height: .84em;
+}
+
+@keyframes checkmark {
+   from {color: rgb(24, 219, 24);}
+   to {color: rgb(94, 245, 107)}
+}
+
+#tick-mark::before {
+    position: absolute;
+    margin: 0;
+    top: 50%;
+    height: 50%;
+    width: 10px;
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    background-color: #ffffff;
+    content: "";
+    transform: translateX(-5px) rotate(-55deg);
+    transform-origin: left bottom;
+}
+@keyframes tick-before {
+    from {
+        height: 0;
+    }
+    to {
+        height: 50%;
+    }
+}
+
+
+#tick-mark::after {
+    position: absolute;
+    margin:0;
+    bottom: 0;
+    height: 10px;
+    width: 100%;
+    background-color:#ffffff;
+    content: "";
+    border-bottom-right-radius: 20px;
+    border-top-right-radius: 20px;
+    transform: translateX(-5px) rotate(-55deg);
+    transform-origin: left bottom;
+    animation : tick-after s 1 ease-in-out;
+}
+
+@keyframes tick-after {
+    from {
+        width: 0;
+    }
+    to {
+        width: 100%;
+    }
+}

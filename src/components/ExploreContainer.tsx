@@ -24,12 +24,17 @@ const ExploreContainer: React.FC<ContainerProps> = ({ name }) => {
   const history = useHistory();
 
   const tabToRender = (name:string) => {
-    switch(name) {
-      case 'Home': return <Home />; break;
-      case 'Activity': return <Activity />; break;
-      case 'Map': return <Map />; break;
-      case 'Settings': return <Settings />; break;
-      default: return <Home />;
+    switch (name) {
+      case "Home":
+        return <Home />;
+      case "Activity":
+        return <Activity />;
+      case "Map":
+        return <Map />;
+      case "Settings":
+        return <Settings />;
+      default:
+        return <Home />;
     }
   }
   return (
