@@ -7,8 +7,8 @@ interface types {
   setUsername: (val: string) => void;
   isLoggedIn: boolean;
   setLogin: (val: boolean) => void;
-  isModalOpen: boolean;
-  setModalOpen: (val: boolean) => void;
+  isLoginModalOpen: boolean;
+  setLoginModalOpen: (val: boolean) => void;
   registrationTokenId: string;
   setRegToken: (val: string) => void;
   showCountdown: boolean;
@@ -25,9 +25,9 @@ const useStore = create<types>((set: any) => ({
   setUsername: (value: string) => set((state: any) => ({ username: value })),
   isLoggedIn: false,
   setLogin: (value: boolean) => set((state: any) => ({ isLoggedIn: value })),
-  isModalOpen: false,
-  setModalOpen: (value: boolean) =>
-    set((state: any) => ({ isModalOpen: value })),
+  isLoginModalOpen: false,
+  setLoginModalOpen: (value: boolean) =>
+    set((state: any) => ({ isLoginModalOpen: value })),
   registrationTokenId: "token--###--1242-alourn9",
   setRegToken: (value: string) =>
     set((state: any) => ({ registrationTokenId: value })),

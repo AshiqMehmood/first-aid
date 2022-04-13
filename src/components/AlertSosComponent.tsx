@@ -1,12 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import Countdown from "react-countdown";
-import "./alertComponent.css";
-import { checkmarkDoneCircleSharp } from "ionicons/icons";
+import "./AlertSosComponent.css";
 import useStore from "../store";
 
-const AlertSOS: React.FC = () => {
-  const countdown = 1 * 1000;
+const AlertSosComponent: React.FC = () => {
+  const countdown = 10 * 1000;
   const [timer, setTimer] = useState(countdown);
   const { showCountdown, setShowCountdown, speed, setSpeed } = useStore();
 
@@ -44,8 +43,8 @@ const AlertSOS: React.FC = () => {
         <path
           fill="none"
           stroke="lightgrey"
-          strokeWidth="9"
-          strokeDasharray="3"
+          strokeWidth="11"
+          strokeDasharray="2"
           d="M 100, 100
             m -75, 0
             a 75,75 0 1,0 150,0
@@ -97,4 +96,4 @@ const AlertSOS: React.FC = () => {
   );
 };
 
-export default AlertSOS;
+export default AlertSosComponent;

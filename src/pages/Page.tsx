@@ -4,8 +4,7 @@ import { IonReactRouter } from '@ionic/react-router';
 import {  Route, Redirect } from 'react-router-dom';
 import { arrowBackCircleSharp, calendar, homeSharp ,map, settingsSharp} from "ionicons/icons"
 import Menu from '../components/Menu';
-import ExploreContainer from '../components/ExploreContainer';
-import Login from './Login';
+import ExploreContainer from "../components/ExploreContainer";
 import { useState } from 'react';
 import './Page.css';
 import useStore from '../store';

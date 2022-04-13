@@ -29,3 +29,12 @@ ion-badge {
 ion-item {
   cursor: pointer;
 }
+
+.my-custom-class .confirm-button {
+  color:#eb445a;
+}
+.my-custom-class .secondary {
+  background-color: #3880ff;
+  color: #ffff;
+  border-radius: 5px;
+}

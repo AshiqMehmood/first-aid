@@ -1,21 +1,34 @@
 import {useEffect, useState} from 'react'
 import { IonButton, IonListHeader, IonList, IonText, IonLabel, IonItem, IonContent, IonIcon,
 IonFab, IonFabButton, IonFabList, IonBadge, IonModal } from "@ionic/react"
-import { personAddSharp, shareSocialOutline } from "ionicons/icons"
-import firebaseModules  from "../firebaseService";
-import {collection, addDoc, getDocs, doc, deleteDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { Capacitor } from '@capacitor/core';
+import {
+  checkmarkDoneCircleSharp,
+  personAddSharp,
+  personCircleSharp,
+  shareSocialOutline,
+} from "ionicons/icons";
+import firebaseModules from "../firebaseService";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  doc,
+  deleteDoc,
+  setDoc,
+  serverTimestamp,
+} from "firebase/firestore";
+import { Capacitor } from "@capacitor/core";
 import { Toast } from "@capacitor/toast";
 import { App } from "@capacitor/app";
-import { 
-    PushNotificationSchema, 
-    PushNotifications, 
-    Token, 
-    ActionPerformed, 
-  } from '@capacitor/push-notifications';
-import useStore from '../store';
-import Contacts from './Contacts';
-import AlertSOSComponent from "./AlertSOS";
+import {
+  PushNotificationSchema,
+  PushNotifications,
+  Token,
+  ActionPerformed,
+} from "@capacitor/push-notifications";
+import useStore from "../store";
+import Contacts from "./Contacts";
+import AlertSOSComponent from "./AlertSosComponent";
 
 const { db } = firebaseModules;
 
@@ -149,15 +162,6 @@ const Home: React.FC<ContainerProps> = () => {
       text: msg,
     });
   };
-  const saveToFirebase = async () => {
-    //to set document with specific ID
-    await setDoc(doc(db, "users", username), {
-      firstname: username,
-      tokenId: registrationTokenId,
-      timestamp: serverTimestamp(),
-    });
-    console.log("Pushed to firebase !", username, registrationTokenId);
-  };
 
   const closeContactsModal = () => {
     setContactsModals(false);
@@ -202,13 +206,12 @@ const Home: React.FC<ContainerProps> = () => {
           ))}
         </IonList>
       )}
-      <IonButton expand="block" onClick={() => saveToFirebase()}>
-        Save to Firebase
-      </IonButton>
+
       <h6>{username}</h6>
       <p>{registrationTokenId}</p>
       <AlertSOSComponent />
       <IonButton
+        disabled={showCountdown}
         expand="block"
         color="danger"
         onClick={() => {
@@ -219,8 +222,10 @@ const Home: React.FC<ContainerProps> = () => {
         fill="solid"
       >
         {showCountdown ? <span>Sending...</span> : <span>Alert</span>}
+        <IonIcon slot="end" icon={checkmarkDoneCircleSharp} />
       </IonButton>
       <IonButton
+        disabled={showCountdown}
         expand="block"
         color="danger"
         onClick={() => {
@@ -230,6 +235,7 @@ const Home: React.FC<ContainerProps> = () => {
         fill="outline"
       >
         Alert Friends
+        <IonIcon slot="end" icon={personCircleSharp} />
       </IonButton>
     </>
   );
