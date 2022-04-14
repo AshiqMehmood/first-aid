@@ -40,13 +40,16 @@ const LandingPage: React.FC = () => {
     });
   });
 
-  const routeChange = () => {
+  const redirectToHomePage = () => {
     setUsername(textValue);
-    let path = "/page/Home";
-    if (!isLoginModalOpen) {
-      history.push(path);
+    localStorage.setItem("app-username", textValue); //store username to localstorage
+    if (localStorage.getItem("app-username")) {
+      setLogin(true);
+      let path = "/page/Home";
+      if (!isLoginModalOpen) {
+        history.push(path);
+      }
     }
-    setLogin(true);
   };
   return (
     <IonPage>
@@ -79,7 +82,10 @@ const LandingPage: React.FC = () => {
             }}
           ></IonInput>
         </IonItem>
-        <IonButton disabled={textValue.length === 0} onClick={routeChange}>
+        <IonButton
+          disabled={textValue.length === 0}
+          onClick={redirectToHomePage}
+        >
           Sign In
         </IonButton>
       </IonContent>

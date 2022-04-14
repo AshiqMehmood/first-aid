@@ -49,8 +49,11 @@ const LoginModal: React.FC<ContainerProps> = ({ exitModal }) => {
         <IonButton
           disabled={textValue.length === 0}
           onClick={() => {
+            localStorage.setItem("app-username", textValue);
             setUsername(textValue);
-            setLogin(true);
+            if (localStorage.getItem("app-username")) {
+              setLogin(true);
+            }
             exitModal();
           }}
         >

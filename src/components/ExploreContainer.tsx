@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, lazy, Suspense } from "react";
 import { useHistory } from "react-router-dom";
 import {
   IonButton,
@@ -13,6 +13,7 @@ import {
   IonBadge,
   IonModal,
   IonAlert,
+  IonSpinner,
 } from "@ionic/react";
 import {
   informationCircleOutline,
@@ -130,6 +131,7 @@ const ExploreContainer: React.FC<ContainerProps> = ({ name }) => {
               id: "confirm-button",
               cssClass: "confirm-button",
               handler: () => {
+                localStorage.removeItem("app-username");
                 setShowToast(true);
                 setLogin(false);
                 setLoginModalOpen(true);

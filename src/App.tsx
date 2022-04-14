@@ -3,8 +3,9 @@ import { IonApp, IonRouterOutlet, setupIonicReact, IonTabs, IonTabBar,
 import { calendar, personCircle, map, informationCircle } from 'ionicons/icons';
 import { IonReactRouter } from '@ionic/react-router';
 import { Redirect, Route } from 'react-router-dom';
-import Page from './pages/Page';
+import Page from "./pages/DashboardPage";
 import LandingPage from "./pages/LandingPage";
+import useStore from "./store";
 
 /* Core CSS required for Ionic components to work properly */
 import "@ionic/react/css/core.css";
@@ -28,6 +29,7 @@ import "./theme/variables.css";
 setupIonicReact();
 
 const App: React.FC = () => {
+  const { isLoggedIn } = useStore();
   return (
     <IonApp>
       <IonRouterOutlet id="main">
@@ -36,19 +38,19 @@ const App: React.FC = () => {
             <LandingPage />
           </Route>
           <Route path="/" exact={true}>
-            <Redirect to="/login" />
+            <Redirect to={isLoggedIn ? "/page/Home" : "/login"} />
           </Route>
           <Route path="/page/Home" exact={true}>
-            <Page />
+            <Page tab="Home" />
           </Route>
           <Route path="/page/Activity" exact={true}>
-            <Page />
+            <Page tab="Activity" />
           </Route>
           <Route path="/page/Map" exact={true}>
-            <Page />
+            <Page tab="Map" />
           </Route>
           <Route path="/page/Settings" exact={true}>
-            <Page />
+            <Page tab="Settings" />
           </Route>
         </IonReactRouter>
       </IonRouterOutlet>

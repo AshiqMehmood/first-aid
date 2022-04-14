@@ -81,9 +81,13 @@ const Activity: React.FC = () => {
       <CardComponent
         contactName={"Harry Potter"}
         placeofIncidence={"Ireland"}
-        reportingTime={"Todat at 2.00pm"}
+        reportingTime={"Yesterday at 2.00pm"}
         status={"Closed"}
       />
+
+      {messages.map((item) => (
+        <p> {item.message} </p>
+      ))}
     </div>
   );
 };

@@ -44,7 +44,7 @@ const CardComponent: React.FC<CardProps> = ({
         <IonItem lines="none" style={{ justifyContent: "flex-end" }}>
           <IonIcon
             icon={personCircleSharp}
-            color={status === "Active" ? "danger" : "medium"}
+            color={status === "Active" ? "tertiary" : "medium"}
             size="large"
           />
         </IonItem>
@@ -85,7 +85,12 @@ const CardComponent: React.FC<CardProps> = ({
           </IonButton>
         </div>
       </IonCardContent>
-      <IonButton color="danger" expand="block" fill="solid" shape="round">
+      <IonButton
+        color={status === "Active" ? "tertiary" : "medium"}
+        expand="block"
+        fill="solid"
+        shape="round"
+      >
         Locate
       </IonButton>
     </IonCard>
