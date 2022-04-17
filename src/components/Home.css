@@ -1,0 +1,22 @@
+.user-card-wrapper {
+    border: 1px solid rgb(167, 167, 167);
+    border-radius: 10px;
+}
+.user-card-container {
+    display: flex;
+    margin-top: 1em;
+}
+
+.user-card-items {
+    display: flex;
+    flex-direction: column;
+    flex-basis: 0;
+    flex-grow: 1;
+    align-content: center;
+    justify-content: center;
+    border: 1px solid rgb(167, 167, 167);
+    border-radius: 10px;
+    padding: 1em;
+    text-align: center;
+    margin-right: .5em;
+}

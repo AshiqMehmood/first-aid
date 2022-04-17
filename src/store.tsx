@@ -23,7 +23,8 @@ const useStore = create<types>((set: any) => ({
     set((state: any) => ({ count: state.count + 1 })),
 
   username: localStorage.getItem("app-username") || "",
-  setUsername: (value: string) => set((state: any) => ({ username: value })),
+  setUsername: (value: string) =>
+    set((state: any) => ({ username: value.toLowerCase() })),
 
   isLoggedIn: localStorage.getItem("app-username") ? true : false,
   setLogin: (value: boolean) => set((state: any) => ({ isLoggedIn: value })),
@@ -32,7 +33,7 @@ const useStore = create<types>((set: any) => ({
   setLoginModalOpen: (value: boolean) =>
     set((state: any) => ({ isLoginModalOpen: value })),
 
-  registrationTokenId: "token--###--1242-alourn9",
+  registrationTokenId: "token--###--1242-ab38j9",
   setRegToken: (value: string) =>
     set((state: any) => ({ registrationTokenId: value })),
 
@@ -40,7 +41,7 @@ const useStore = create<types>((set: any) => ({
   setShowCountdown: (value: boolean) =>
     set((state: any) => ({ showCountdown: value })),
 
-  speed: "10",
+  speed: "100",
   setSpeed: (val: string) => set((state: any) => ({ speed: val })),
 }));
 

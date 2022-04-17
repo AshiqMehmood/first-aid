@@ -1,3 +1,4 @@
+import { Timestamp } from "@firebase/firestore";
 import {
   IonCard,
   IonCardHeader,
@@ -14,10 +15,11 @@ import {
   personCircleSharp,
   shareSocialOutline,
 } from "ionicons/icons";
+import "./CardComponent.css";
 
 interface CardProps {
   contactName: string;
-  reportingTime: string;
+  reportingTime: Timestamp;
   placeofIncidence: string;
   status: string;
 }
@@ -27,27 +29,49 @@ const CardComponent: React.FC<CardProps> = ({
   placeofIncidence,
   status,
 }) => {
+  const formatDate = () => {
+    const dateTime = new Date(reportingTime.seconds * 1000);
+    const options = {
+      weekday: "short",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    };
+    //@ts-ignore
+    const formattedDate = dateTime.toLocaleDateString("en-US", options);
+    return formattedDate.toString();
+  };
+  const formatTime = () => {
+    const dateTime = new Date(reportingTime.seconds * 1000);
+    const options = {
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+    };
+    const formattedTime = dateTime //@ts-ignore
+      .toLocaleDateString("en-US", options)
+      .split(",")[1]
+      .trim();
+    return formattedTime.toString();
+  };
+
   return (
-    <IonCard>
+    <IonCard className="custom-card">
       <IonCardHeader style={{ display: "flex" }}>
         <div
           style={{
             display: "flex",
             flexDirection: "column",
             justifyContent: "flex-start",
-            flexGrow: "8",
+            flexGrow: "2",
           }}
         >
-          <IonCardSubtitle>{reportingTime}</IonCardSubtitle>
+          <IonCardSubtitle>{formatDate()}</IonCardSubtitle>
           <IonCardTitle>{contactName}</IonCardTitle>
         </div>
-        <IonItem lines="none" style={{ justifyContent: "flex-end" }}>
-          <IonIcon
-            icon={personCircleSharp}
-            color={status === "Active" ? "tertiary" : "medium"}
-            size="large"
-          />
-        </IonItem>
+        <div style={{ justifyContent: "flex-end" }}>
+          <b>{formatTime()}</b>
+        </div>
       </IonCardHeader>
 
       <IonCardContent
@@ -86,7 +110,7 @@ const CardComponent: React.FC<CardProps> = ({
         </div>
       </IonCardContent>
       <IonButton
-        color={status === "Active" ? "tertiary" : "medium"}
+        color={status === "active" ? "tertiary" : "medium"}
         expand="block"
         fill="solid"
         shape="round"

@@ -4,7 +4,11 @@ import Countdown from "react-countdown";
 import "./AlertSosComponent.css";
 import useStore from "../store";
 
-const AlertSosComponent: React.FC = () => {
+interface AlertProps {
+  alert: () => void;
+}
+
+const AlertSosComponent: React.FC<AlertProps> = ({ alert }) => {
   const countdown = 10 * 1000;
   const [timer, setTimer] = useState(countdown);
   const { showCountdown, setShowCountdown, speed, setSpeed } = useStore();
@@ -65,7 +69,7 @@ const AlertSosComponent: React.FC = () => {
         style={{
           position: "absolute",
           fontSize: "4.8em",
-          color: "rgb(60, 60, 60)",
+          color: "rgb(90, 90, 90)",
           transform: "translate(50%, -30%)",
           fontFamily: "serif",
           textAlign: "center",
@@ -81,10 +85,11 @@ const AlertSosComponent: React.FC = () => {
             onComplete={() => {
               //send messages
               console.log(">>>sending message alerts.....!");
+              alert();
               setTimeout(() => {
                 console.log(">>>DONE.....!");
                 setShowCountdown(false);
-                setSpeed("10");
+                setSpeed("100");
               }, 4000);
             }}
           />

@@ -1,8 +1,27 @@
 import {useEffect, useState} from 'react'
-import { IonButton, IonListHeader, IonList, IonText, IonLabel, IonItem, IonContent, IonIcon,
-IonFab, IonFabButton, IonFabList, IonBadge, IonModal } from "@ionic/react"
+import {
+  IonButton,
+  IonListHeader,
+  IonList,
+  IonText,
+  IonLabel,
+  IonItem,
+  IonContent,
+  IonIcon,
+  IonFab,
+  IonFabButton,
+  IonFabList,
+  IonBadge,
+  IonModal,
+  IonCard,
+  IonCardHeader,
+  IonCardContent,
+  IonCardTitle,
+  IonCardSubtitle,
+} from "@ionic/react";
 import {
   checkmarkDoneCircleSharp,
+  locate,
   personAddSharp,
   personCircleSharp,
   shareSocialOutline,
@@ -15,6 +34,7 @@ import {
   doc,
   deleteDoc,
   setDoc,
+  updateDoc,
   serverTimestamp,
 } from "firebase/firestore";
 import { Capacitor } from "@capacitor/core";
@@ -29,6 +49,8 @@ import {
 import useStore from "../store";
 import Contacts from "./Contacts";
 import AlertSOSComponent from "./AlertSosComponent";
+import NotificationList from "./NotificationList";
+import "./Home.css";
 
 const { db } = firebaseModules;
 
@@ -46,9 +68,11 @@ const Home: React.FC<ContainerProps> = () => {
   } = useStore();
   const nullEntry: any[] = [];
   const [notifications, setNotifications] = useState(nullEntry);
+  const [notifModalOpen, setNotifModal] = useState(false);
   const [contactsModalOpen, setContactsModals] = useState(false);
   const countdown = 10 * 1000;
   const [timer, setTimer] = useState(countdown);
+  const [inputText, setText] = useState("");
 
   const isPushNotificationAvailable =
     Capacitor.isPluginAvailable("PushNotifications");
@@ -59,7 +83,9 @@ const Home: React.FC<ContainerProps> = () => {
       isPushNotificationAvailable
     );
     let isMounted = true; //flag
-    if (isPushNotificationAvailable && username.length !== 0) {
+    const isTokenAvailable = localStorage.getItem("app-token");
+    if (isPushNotificationAvailable && !isTokenAvailable) {
+      // if token is not in memory
       PushNotifications.checkPermissions().then((res) => {
         if (res.receive !== "granted") {
           PushNotifications.requestPermissions().then((res) => {
@@ -76,25 +102,38 @@ const Home: React.FC<ContainerProps> = () => {
       });
     }
 
+    //cleanup values
     return () => {
       isMounted = false;
-    }; //cleanup values
+    };
   }, [username]);
 
   const registerPush = async (isMounted: boolean) => {
-    console.log(">> Initializing App ...");
-    if (isPushNotificationAvailable && username.length !== 0) {
+    const isTokenAvailable = localStorage.getItem("app-token");
+    if (isPushNotificationAvailable) {
       await PushNotifications.register();
       await PushNotifications.addListener("registration", (token: Token) => {
-        console.info("Registration token", token.value);
+        console.info("Registration token generated: ", token.value);
         if (isMounted) {
           setRegToken(token.value);
+          localStorage.setItem("app-token", token.value); //store token to local storage
           showToast("Push registration success !");
         }
       });
+      if (isTokenAvailable) {
+        console.info(">> sending token to firebase..");
+        //store regToken in firebase
+        const userDetails = doc(db, "users", username);
+        await updateDoc(userDetails, {
+          tokenId: registrationTokenId,
+        });
+      }
       await PushNotifications.addListener("registrationError", (err: any) => {
-        showToast("registration of token failed !");
+        showToast("Token registration failed !");
       });
+    }
+
+    try {
       await PushNotifications.addListener(
         "pushNotificationReceived",
         (notif: PushNotificationSchema) => {
@@ -127,29 +166,6 @@ const Home: React.FC<ContainerProps> = () => {
           }
         }
       );
-    }
-
-    try {
-      // const docRef = await addDoc(collection(db, "users"), {
-      //   first: "Ada",
-      //   last: "Lovelace",
-      //   contact: "12345"
-      // });
-      // console.log('>>Document written with ID', docRef.id)
-      //to set document with specific ID
-      // await setDoc(doc(db, "users", "monster-token"), {
-      //   first: 'Monster',
-      //   tokenId: '##&^#^*#$jjjjj111223',
-      //   timestamp: serverTimestamp()
-      // })
-      //create new collection and add data to it
-      // const emerId = await addDoc(collection(db, "emergency"), {
-      //   name: 'hospital',
-      //   contact: '571293900'
-      // })
-      // console.log('emergency contact added', emerId)
-      //to delete document from collection
-      //await deleteDoc(doc(db, "users", "OfdyIreZ7joRJjUeASrs"))
     } catch (e) {
       console.error(e);
     }
@@ -166,6 +182,22 @@ const Home: React.FC<ContainerProps> = () => {
   const closeContactsModal = () => {
     setContactsModals(false);
   };
+  const closeNotifModal = () => {
+    setNotifModal(false);
+  };
+
+  const sendAlert = async () => {
+    //to set document with specific ID
+    // const newData = await addDoc(
+    //   collection(db, "users", "mehmood", "activity"),
+    //   {
+    //     contact: "niranjana",
+    //     place: "trivandrum",
+    //     created_at: serverTimestamp(),
+    //   }
+    // );
+    console.log("Pushed to firebase !");
+  };
 
   return (
     <>
@@ -175,9 +207,32 @@ const Home: React.FC<ContainerProps> = () => {
         </IonFabButton>
       </IonFab>
 
-      <IonListHeader mode="md" lines="inset">
-        <IonLabel>Notifications</IonLabel>
-      </IonListHeader>
+      <IonCard className="user-card-wrapper">
+        <IonCardHeader>
+          <IonCardSubtitle>ID: 1234</IonCardSubtitle>
+          <IonCardTitle>Hi, {username.toUpperCase()}</IonCardTitle>
+          <div className="user-card-container">
+            <div className="user-card-items">
+              <IonLabel style={{ fontSize: ".7rem" }}>Device</IonLabel>
+              <IonLabel style={{ fontSize: ".9rem", fontWeight: "bold" }}>
+                connected
+              </IonLabel>
+            </div>
+            <div className="user-card-items">
+              <IonLabel style={{ fontSize: ".7rem" }}>Contacts</IonLabel>
+              <IonLabel style={{ fontSize: ".9rem", fontWeight: "bold" }}>
+                7
+              </IonLabel>
+            </div>
+            <div className="user-card-items">
+              <IonLabel style={{ fontSize: ".7rem" }}>Location</IonLabel>
+              <IonLabel style={{ fontSize: ".9rem", fontWeight: "bold" }}>
+                trivandrum
+              </IonLabel>
+            </div>
+          </div>
+        </IonCardHeader>
+      </IonCard>
       <IonModal
         isOpen={contactsModalOpen}
         //onDidDismiss={() => setContactsModals(false)}
@@ -186,57 +241,48 @@ const Home: React.FC<ContainerProps> = () => {
       >
         <Contacts exitModal={closeContactsModal} />
       </IonModal>
-      {notifications.length !== 0 && (
-        <IonList>
-          {notifications.map((notif: any) => (
-            <IonItem key={notif.id}>
-              <IonLabel>
-                <IonText>
-                  <h3 className="notif-title">{notif.title}</h3>
-                </IonText>
-                <p>{notif.body}</p>
-                {notif.type === "foreground" && (
-                  <p>This data was received in foreground</p>
-                )}
-                {notif.type === "action" && (
-                  <p>This data was received on tap</p>
-                )}
-              </IonLabel>
-            </IonItem>
-          ))}
-        </IonList>
-      )}
+      <IonModal
+        isOpen={notifModalOpen}
+        //onDidDismiss={() => setContactsModals(false)}
+        //swipeToClose={true}
+        //presentingElement={router || undefined}
+      >
+        <NotificationList
+          notifications={notifications}
+          exitModal={closeNotifModal}
+        />
+      </IonModal>
 
-      <h6>{username}</h6>
-      <p>{registrationTokenId}</p>
-      <AlertSOSComponent />
-      <IonButton
-        disabled={showCountdown}
-        expand="block"
-        color="danger"
-        onClick={() => {
-          setShowCountdown(true);
-          setSpeed("1");
-        }}
-        shape="round"
-        fill="solid"
-      >
-        {showCountdown ? <span>Sending...</span> : <span>Alert</span>}
-        <IonIcon slot="end" icon={checkmarkDoneCircleSharp} />
-      </IonButton>
-      <IonButton
-        disabled={showCountdown}
-        expand="block"
-        color="danger"
-        onClick={() => {
-          console.log(">> alert only selected friends");
-        }}
-        shape="round"
-        fill="outline"
-      >
-        Alert Friends
-        <IonIcon slot="end" icon={personCircleSharp} />
-      </IonButton>
+      <AlertSOSComponent alert={sendAlert} />
+      <div style={{ marginTop: "2em" }}>
+        <IonButton
+          disabled={showCountdown}
+          expand="block"
+          color="danger"
+          onClick={() => {
+            setShowCountdown(true);
+            setSpeed("1");
+          }}
+          shape="round"
+          fill="solid"
+        >
+          {showCountdown ? <span>Sending...</span> : <span>Alert</span>}
+          <IonIcon slot="end" icon={checkmarkDoneCircleSharp} />
+        </IonButton>
+        <IonButton
+          disabled={showCountdown}
+          expand="block"
+          color="danger"
+          onClick={() => {
+            console.log(">> alert only selected friends");
+          }}
+          shape="round"
+          fill="outline"
+        >
+          Alert Friends
+          <IonIcon slot="end" icon={personCircleSharp} />
+        </IonButton>
+      </div>
     </>
   );
 };

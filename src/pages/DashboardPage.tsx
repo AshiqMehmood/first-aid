@@ -17,7 +17,7 @@ import {
   map,
   settingsSharp,
 } from "ionicons/icons";
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect } from "react";
 import FallBackUI from "../components/FallBack";
 
 const ExploreContainer = lazy(() => import("../components/ExploreContainer"));
@@ -28,7 +28,6 @@ interface PageProps {
 const Page: React.FC<PageProps> = ({ tab }) => {
   const { pathname } = useLocation();
   const name = pathname.replace(/\/page\//g, "");
-
   return (
     <IonTabs>
       <IonRouterOutlet>

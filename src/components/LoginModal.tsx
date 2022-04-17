@@ -12,7 +12,7 @@ import {
   IonLabel,
   IonInput,
 } from "@ionic/react";
-import { happyOutline, closeOutline, personCircle } from "ionicons/icons";
+import { happyOutline } from "ionicons/icons";
 import ToastComponent from "./ToastComponent";
 import useStore from "../store";
 
@@ -49,12 +49,14 @@ const LoginModal: React.FC<ContainerProps> = ({ exitModal }) => {
         <IonButton
           disabled={textValue.length === 0}
           onClick={() => {
-            localStorage.setItem("app-username", textValue);
+            localStorage.setItem("app-username", textValue.toLowerCase());
             setUsername(textValue);
             if (localStorage.getItem("app-username")) {
               setLogin(true);
             }
-            exitModal();
+            setTimeout(() => {
+              exitModal();
+            }, 1000);
           }}
         >
           Sign In

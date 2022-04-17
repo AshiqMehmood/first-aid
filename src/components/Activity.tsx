@@ -21,11 +21,10 @@ const { db } = firebaseModules;
 
 const Activity: React.FC = () => {
   const [messages, setMessages] = useState<Array<any>>([]);
-  const [inputText, setText] = useState("");
-  const { username, registrationTokenId, setRegToken } = useStore();
+  const { username } = useStore();
 
   useEffect(() => {
-    const q = query(collection(db, "messages"), orderBy("timestamp", "asc"));
+    const q = query(collection(db, "users", username, "activity"));
     // const querySnapshot = await getDocs(q);
     // querySnapshot.forEach((doc) => {
     //   console.log(">>>", doc.data());
@@ -35,13 +34,17 @@ const Activity: React.FC = () => {
       querySnapshot.forEach((doc) => {
         listOfMessages.push(doc.data());
       });
-      setMessages([...listOfMessages]);
+      console.log(
+        ">>>",
+        listOfMessages.map((item) => item)
+      );
+      setMessages([...messages, ...listOfMessages]);
     });
 
     return () => {
       unsubscribe();
     };
-  }, []);
+  }, [username]);
 
   const readMessages = async () => {
     //const q = query(collection(db, "messages"));
@@ -51,43 +54,18 @@ const Activity: React.FC = () => {
     // });
   };
 
-  const saveToFirebase = async () => {
-    //to set document with specific ID
-    const newData = await addDoc(collection(db, "messages"), {
-      message: inputText,
-      timestamp: serverTimestamp(),
-    });
-    console.log("Pushed to firebase !", newData.id);
-  };
-
   return (
     <div>
-      <IonInput
-        type="text"
-        onIonChange={(e) => {
-          //@ts-ignore
-          setText(e.detail.value);
-        }}
-      />
-      <IonButton expand="block" onClick={() => saveToFirebase()}>
-        Save to Firebase
-      </IonButton>
-      <CardComponent
-        contactName={"Ashiq Mehmood"}
-        placeofIncidence={"Trivandrum"}
-        reportingTime={"Todat at 5.00pm"}
-        status={"Active"}
-      />
-      <CardComponent
-        contactName={"Harry Potter"}
-        placeofIncidence={"Ireland"}
-        reportingTime={"Yesterday at 2.00pm"}
-        status={"Closed"}
-      />
-
-      {messages.map((item) => (
-        <p> {item.message} </p>
-      ))}
+      {messages &&
+        messages.map((item) => (
+          <CardComponent
+            key={item.created_at.toString() || ""}
+            contactName={item.contact || ""}
+            placeofIncidence={item.place || ""}
+            reportingTime={item.created_at || ""}
+            status={item.status || ""}
+          />
+        ))}
     </div>
   );
 };

@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
-import firebaseModules from "../firebaseService";
-import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import {
   IonButton,
   IonPage,
@@ -42,7 +40,7 @@ const LandingPage: React.FC = () => {
 
   const redirectToHomePage = () => {
     setUsername(textValue);
-    localStorage.setItem("app-username", textValue); //store username to localstorage
+    localStorage.setItem("app-username", textValue.toLowerCase()); //store username to localstorage
     if (localStorage.getItem("app-username")) {
       setLogin(true);
       let path = "/page/Home";
