@@ -21,7 +21,7 @@ import {
   notificationsSharp,
   personCircleOutline,
 } from "ionicons/icons";
-import firebaseModules from "../firebaseService";
+
 import useStore from "../store";
 import { App } from "@capacitor/app";
 import Home from "./Home";
@@ -32,14 +32,18 @@ import LoginModal from "./LoginModal";
 import ToastComponent from "./ToastComponent";
 import "./ExploreContainer.css";
 
-const { db } = firebaseModules;
-
 interface ContainerProps {
   name: string;
 }
 
 const ExploreContainer: React.FC<ContainerProps> = ({ name }) => {
-  const { setLogin, isLoginModalOpen, setLoginModalOpen } = useStore();
+  const {
+    setLogin,
+    isLoginModalOpen,
+    setLoginModalOpen,
+    activities,
+    username,
+  } = useStore();
   const history = useHistory();
   const [showPopover, setShowPopover] = useState(false);
   const [showToast, setShowToast] = useState(false);

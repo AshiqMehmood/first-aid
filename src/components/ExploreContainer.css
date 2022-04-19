@@ -23,7 +23,8 @@
 }
 
 ion-badge {
-  transform: translateY(-10px);
+  transform: translate(-1px,-9px);
+  font-size: small;
 }
 
 ion-item {

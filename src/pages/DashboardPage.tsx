@@ -17,10 +17,26 @@ import {
   map,
   settingsSharp,
 } from "ionicons/icons";
-import { Suspense, lazy, useEffect } from "react";
+import { Suspense, lazy, useEffect, useState, useCallback } from "react";
 import FallBackUI from "../components/FallBack";
-
+import firebaseModules from "../firebaseService";
+import useStore from "../store";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  doc,
+  deleteDoc,
+  setDoc,
+  serverTimestamp,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+} from "firebase/firestore";
 const ExploreContainer = lazy(() => import("../components/ExploreContainer"));
+
+const { db } = firebaseModules;
 
 interface PageProps {
   tab: string;
@@ -28,6 +44,36 @@ interface PageProps {
 const Page: React.FC<PageProps> = ({ tab }) => {
   const { pathname } = useLocation();
   const name = pathname.replace(/\/page\//g, "");
+  const [newActivityCount, setActivityCount] = useState(0);
+  const { username } = useStore();
+
+  const memoizedActivityTracker = useCallback(() => {
+    const q = query(collection(db, "users", username, "activity"));
+    const activityTrackerUnsubscribe = onSnapshot(q, (querySnapshot) => {
+      const listOfMessages: Array<any> = [];
+      querySnapshot.forEach((doc) => {
+        listOfMessages.push(doc.data());
+      });
+
+      const newData = listOfMessages.filter(
+        (item) =>
+          //@ts-ignore
+          !JSON.parse(localStorage.getItem("app-activities")).find(
+            (docs: any) => docs === item.contact
+          )
+      );
+      setActivityCount(newData.length);
+    });
+    return activityTrackerUnsubscribe;
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = memoizedActivityTracker();
+    return () => {
+      unsubscribe();
+    };
+  }, [memoizedActivityTracker]);
+
   return (
     <IonTabs>
       <IonRouterOutlet>
@@ -49,7 +95,9 @@ const Page: React.FC<PageProps> = ({ tab }) => {
         <IonTabButton tab="Activity" href="/page/Activity">
           <IonIcon icon={calendar} />
           <IonLabel>Activity</IonLabel>
-          <IonBadge>6</IonBadge>
+          {newActivityCount !== 0 && (
+            <IonBadge color="danger">{newActivityCount}</IonBadge>
+          )}
         </IonTabButton>
 
         <IonTabButton tab="Map" href="/page/Map">

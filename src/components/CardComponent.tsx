@@ -14,6 +14,7 @@ import {
   copyOutline,
   personCircleSharp,
   shareSocialOutline,
+  trashBinOutline,
 } from "ionicons/icons";
 import "./CardComponent.css";
 
@@ -22,12 +23,14 @@ interface CardProps {
   reportingTime: Timestamp;
   placeofIncidence: string;
   status: string;
+  onDelete: () => void;
 }
 const CardComponent: React.FC<CardProps> = ({
   contactName,
   reportingTime,
   placeofIncidence,
   status,
+  onDelete,
 }) => {
   const formatDate = () => {
     const dateTime = new Date(reportingTime.seconds * 1000);
@@ -104,8 +107,8 @@ const CardComponent: React.FC<CardProps> = ({
             <IonIcon icon={shareSocialOutline} />
           </IonButton>
 
-          <IonButton color="tertiary" fill="clear">
-            <IonIcon icon={copyOutline} />
+          <IonButton color="danger" fill="clear" onClick={() => onDelete()}>
+            <IonIcon icon={trashBinOutline} />
           </IonButton>
         </div>
       </IonCardContent>

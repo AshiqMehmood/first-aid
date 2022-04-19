@@ -15,6 +15,8 @@ interface types {
   setShowCountdown: (val: boolean) => void;
   speed: string;
   setSpeed: (val: string) => void;
+  activities: Array<any>;
+  setActivities: (val: any) => void;
 }
 
 const useStore = create<types>((set: any) => ({
@@ -43,6 +45,9 @@ const useStore = create<types>((set: any) => ({
 
   speed: "100",
   setSpeed: (val: string) => set((state: any) => ({ speed: val })),
+
+  activities: [],
+  setActivities: (val: any) => set((state: any) => ({ activities: [...val] })),
 }));
 
 
