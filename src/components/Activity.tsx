@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { IonAlert } from "@ionic/react";
+import { IonAlert, IonLoading } from "@ionic/react";
 import firebaseModules from "../firebaseService";
 import {
   collection,
@@ -23,6 +23,7 @@ const { db } = firebaseModules;
 const Activity: React.FC = () => {
   const [itemToDelete, setDeleteItem] = useState<Array<any>>([]);
   const [showPopover, setShowPopover] = useState(false);
+  const [showLoader, setShowLoader] = useState(false);
   const { username, activities, setActivities } = useStore();
 
   useEffect(() => {
@@ -44,7 +45,7 @@ const Activity: React.FC = () => {
     // return () => {
     //   unsubscribe();
     // };
-  }, [username, activities]);
+  }, []);
 
   const readActivity = async (q: any) => {
     const querySnapshot = await getDocs(q);
@@ -53,16 +54,14 @@ const Activity: React.FC = () => {
       listOfMessages.push(doc.data());
     });
     setActivities(listOfMessages);
-    localStorage.setItem(
-      "app-activities",
-      JSON.stringify(listOfMessages.map((item) => item.contact))
-    );
+    localStorage.setItem("app-activities", JSON.stringify(listOfMessages));
   };
 
   const deleteActivity = async (val: any) => {
     const q = await query(
       collection(db, "users", username, "activity"),
-      where("contact", "==", val.contact)
+      where("contact", "==", val.contact),
+      where("created_at", "==", val.created_at)
     );
     const querySnapshot = await getDocs(q);
     let docId = { idToRemove: "" };
@@ -70,7 +69,19 @@ const Activity: React.FC = () => {
       docId.idToRemove = doc.id;
       return docId;
     });
-    await deleteDoc(doc(db, "users", username, "activity", docId.idToRemove));
+    try {
+      await deleteDoc(doc(db, "users", username, "activity", docId.idToRemove));
+    } catch (err) {
+      console.error(err);
+    }
+    const updatedActivityList = activities.filter(
+      (item) =>
+        item.contact !== val.contact &&
+        new Date(item.created_at.seconds * 1000).toString() !==
+          new Date(val.created_at.seconds * 1000).toString()
+    );
+    setActivities([...updatedActivityList]);
+    setShowLoader(false);
   };
 
   return (
@@ -94,6 +105,7 @@ const Activity: React.FC = () => {
             id: "confirm-button",
             handler: () => {
               console.log("deleted !");
+              setShowLoader(true);
               deleteActivity(itemToDelete);
             },
           },
@@ -104,15 +116,21 @@ const Activity: React.FC = () => {
           <CardComponent
             key={item.created_at.toString() || ""}
             contactName={item.contact || ""}
-            placeofIncidence={item.place || ""}
+            placeofIncidence={item.place || "unknown"}
             reportingTime={item.created_at || ""}
-            status={item.status || ""}
+            status={item.status || "closed"}
             onDelete={() => {
               setShowPopover(true);
               setDeleteItem(item);
             }}
           />
         ))}
+      <IonLoading
+        cssClass="my-custom-class"
+        isOpen={showLoader}
+        onDidDismiss={() => console.log("finished deleting...")}
+        message={"Please wait.."}
+      />
     </div>
   );
 };

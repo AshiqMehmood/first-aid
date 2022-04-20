@@ -36,6 +36,7 @@ import {
   setDoc,
   updateDoc,
   serverTimestamp,
+  runTransaction,
 } from "firebase/firestore";
 import { Capacitor } from "@capacitor/core";
 import { Toast } from "@capacitor/toast";
@@ -123,10 +124,7 @@ const Home: React.FC<ContainerProps> = () => {
       if (isTokenAvailable) {
         console.info(">> sending token to firebase..");
         //store regToken in firebase
-        const userDetails = doc(db, "users", username);
-        await updateDoc(userDetails, {
-          tokenId: registrationTokenId,
-        });
+        updateToken();
       }
       await PushNotifications.addListener("registrationError", (err: any) => {
         showToast("Token registration failed !");
@@ -196,7 +194,36 @@ const Home: React.FC<ContainerProps> = () => {
     //     created_at: serverTimestamp(),
     //   }
     // );
+    const sfDocRef = doc(db, "users", username);
+    try {
+      await runTransaction(db, async (transaction) => {
+        const sfdoc = await transaction.get(sfDocRef);
+        if (!sfdoc.exists()) {
+          throw new Error("Document does not exist !");
+        }
+        const listOfRecipients = [...sfdoc.data()?.people];
+        listOfRecipients.forEach((item) => {
+          let recipDocRef = doc(
+            collection(db, "users", item.firstname, "activity")
+          );
+          transaction.set(recipDocRef, {
+            contact: username,
+            created_at: serverTimestamp(),
+            status: "active",
+          });
+        });
+        console.log("Transaction successfully committed!");
+      });
+    } catch (err) {
+      console.error(err);
+    }
     console.log("Pushed to firebase !");
+  };
+  const updateToken = async () => {
+    const userDetails = doc(db, "users", username);
+    await updateDoc(userDetails, {
+      tokenId: "#testing-token-12345###",
+    });
   };
 
   return (

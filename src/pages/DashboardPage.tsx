@@ -54,12 +54,16 @@ const Page: React.FC<PageProps> = ({ tab }) => {
       querySnapshot.forEach((doc) => {
         listOfMessages.push(doc.data());
       });
-
+      
+      const cachedActivities = //@ts-ignore
+        JSON.parse(localStorage.getItem("app-activities")) || [];
       const newData = listOfMessages.filter(
         (item) =>
-          //@ts-ignore
-          !JSON.parse(localStorage.getItem("app-activities")).find(
-            (docs: any) => docs === item.contact
+          !cachedActivities.find(
+            (docs: any) =>
+              docs.contact === item.contact &&
+              new Date(docs.created_at.seconds * 1000).toString() ===
+                new Date(item.created_at.seconds * 1000).toString()
           )
       );
       setActivityCount(newData.length);

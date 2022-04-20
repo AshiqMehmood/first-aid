@@ -93,7 +93,6 @@ const ExploreContainer: React.FC<ContainerProps> = ({ name }) => {
               onClick={() => alert("notification panel")}
             >
               <IonIcon size="small" icon={notificationsSharp} />
-              <IonBadge color="danger">7</IonBadge>
             </IonItem>
             <IonButton
               onClick={async () => {
@@ -134,12 +133,13 @@ const ExploreContainer: React.FC<ContainerProps> = ({ name }) => {
               text: "Yes",
               id: "confirm-button",
               cssClass: "confirm-button",
-              handler: () => {
+              handler: async () => {
                 localStorage.removeItem("app-username");
                 localStorage.removeItem("app-token");
-                setShowToast(true);
-                setLogin(false);
-                setLoginModalOpen(true);
+                localStorage.removeItem("app-activities");
+                await setShowToast(true);
+                await setLogin(false);
+                await setLoginModalOpen(true);
               },
             },
           ]}
