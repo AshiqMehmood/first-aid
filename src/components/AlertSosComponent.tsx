@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { memo } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { IonButton, IonIcon, IonSpinner } from "@ionic/react";
 import Countdown from "react-countdown";
 import "./AlertSosComponent.css";
@@ -65,6 +66,23 @@ const AlertSosComponent: React.FC<AlertProps> = ({ alert }) => {
           />
         </circle>
       </svg>
+      {showCountdown && (
+        <div
+          style={{
+            position: "absolute",
+            fontSize: "1em",
+            color: "rgb(120,120,120)",
+            transform: "translate(50%, -50%)",
+            fontFamily: "serif",
+            textAlign: "center",
+            margin: "0",
+            top: "30%",
+            right: "50%",
+          }}
+        >
+          Sending SOS<br></br> in...
+        </div>
+      )}
       <div
         style={{
           position: "absolute",
@@ -79,20 +97,22 @@ const AlertSosComponent: React.FC<AlertProps> = ({ alert }) => {
         }}
       >
         {showCountdown ? (
-          <Countdown
-            date={Date.now() + timer}
-            renderer={renderer}
-            onComplete={() => {
-              //send messages
-              console.log(">>>sending message alerts.....!");
-              alert();
-              setTimeout(() => {
-                console.log(">>>DONE.....!");
-                setShowCountdown(false);
-                setSpeed("100");
-              }, 4000);
-            }}
-          />
+          <div>
+            <Countdown
+              date={Date.now() + timer}
+              renderer={renderer}
+              onComplete={() => {
+                //send messages
+                console.log(">>>sending message alerts.....!");
+                alert();
+                setTimeout(() => {
+                  console.log(">>>DONE.....!");
+                  setShowCountdown(false);
+                  setSpeed("100");
+                }, 4000);
+              }}
+            />
+          </div>
         ) : (
           <span>SOS</span>
         )}
@@ -101,4 +121,4 @@ const AlertSosComponent: React.FC<AlertProps> = ({ alert }) => {
   );
 };
 
-export default AlertSosComponent;
+export default memo(AlertSosComponent);

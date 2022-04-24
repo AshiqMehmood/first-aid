@@ -21,7 +21,10 @@ import "./CardComponent.css";
 interface CardProps {
   contactName: string;
   reportingTime: Timestamp;
-  placeofIncidence: string;
+  placeofIncidence: {
+    latitude: string;
+    longitude: string;
+  };
   status: string;
   onDelete: () => void;
 }
@@ -94,7 +97,8 @@ const CardComponent: React.FC<CardProps> = ({
             <b>Status:</b> {status}
           </IonLabel>
           <IonLabel>
-            <b>Place:</b> {placeofIncidence}
+            [{placeofIncidence.latitude || "lat"},{" "}
+            {placeofIncidence.longitude || "lon"}]
           </IonLabel>
         </div>
         <div
@@ -117,6 +121,7 @@ const CardComponent: React.FC<CardProps> = ({
         expand="block"
         fill="solid"
         shape="round"
+        href={`https://www.google.com/maps/@${placeofIncidence.latitude},${placeofIncidence.longitude}`}
       >
         Locate
       </IonButton>

@@ -18,13 +18,13 @@ import {
   IonCardContent,
   IonCardTitle,
   IonCardSubtitle,
+  IonAlert,
 } from "@ionic/react";
 import {
   checkmarkDoneCircleSharp,
+  happy,
   locate,
   personAddSharp,
-  personCircleSharp,
-  shareSocialOutline,
 } from "ionicons/icons";
 import firebaseModules from "../firebaseService";
 import {
@@ -37,10 +37,12 @@ import {
   updateDoc,
   serverTimestamp,
   runTransaction,
+  GeoPoint,
 } from "firebase/firestore";
 import { Capacitor } from "@capacitor/core";
 import { Toast } from "@capacitor/toast";
 import { App } from "@capacitor/app";
+import { Geolocation } from "@capacitor/geolocation";
 import {
   PushNotificationSchema,
   PushNotifications,
@@ -56,7 +58,10 @@ import "./Home.css";
 const { db } = firebaseModules;
 
 interface ContainerProps {}
-
+interface GeoTypes {
+  lat: number;
+  lon: number;
+}
 const Home: React.FC<ContainerProps> = () => {
   const {
     username,
@@ -66,6 +71,7 @@ const Home: React.FC<ContainerProps> = () => {
     setShowCountdown,
     speed,
     setSpeed,
+    isDeviceConnected,
   } = useStore();
   const nullEntry: any[] = [];
   const [notifications, setNotifications] = useState(nullEntry);
@@ -74,6 +80,10 @@ const Home: React.FC<ContainerProps> = () => {
   const countdown = 10 * 1000;
   const [timer, setTimer] = useState(countdown);
   const [inputText, setText] = useState("");
+  const [currentLocation, setCurrentLocation] = useState<GeoTypes>({
+    lat: 0,
+    lon: 0,
+  });
 
   const isPushNotificationAvailable =
     Capacitor.isPluginAvailable("PushNotifications");
@@ -108,6 +118,10 @@ const Home: React.FC<ContainerProps> = () => {
       isMounted = false;
     };
   }, [username]);
+
+  useEffect(() => {
+    geoLocationOfUser();
+  }, []);
 
   const registerPush = async (isMounted: boolean) => {
     const isTokenAvailable = localStorage.getItem("app-token");
@@ -194,6 +208,7 @@ const Home: React.FC<ContainerProps> = () => {
     //     created_at: serverTimestamp(),
     //   }
     // );
+
     const sfDocRef = doc(db, "users", username);
     try {
       await runTransaction(db, async (transaction) => {
@@ -210,6 +225,7 @@ const Home: React.FC<ContainerProps> = () => {
             contact: username,
             created_at: serverTimestamp(),
             status: "active",
+            place: new GeoPoint(currentLocation.lat, currentLocation.lon),
           });
         });
         console.log("Transaction successfully committed!");
@@ -219,11 +235,25 @@ const Home: React.FC<ContainerProps> = () => {
     }
     console.log("Pushed to firebase !");
   };
+
   const updateToken = async () => {
     const userDetails = doc(db, "users", username);
     await updateDoc(userDetails, {
-      tokenId: "#testing-token-12345###",
+      tokenId: registrationTokenId,
     });
+  };
+
+  const geoLocationOfUser = async () => {
+    try {
+      const coordinates = await Geolocation.getCurrentPosition();
+      const location = {
+        lat: coordinates.coords.latitude,
+        lon: coordinates.coords.longitude,
+      };
+      setCurrentLocation(location);
+    } catch (err) {
+      console.error("Unable to fetch coordinates", err);
+    }
   };
 
   return (
@@ -242,7 +272,7 @@ const Home: React.FC<ContainerProps> = () => {
             <div className="user-card-items">
               <IonLabel style={{ fontSize: ".7rem" }}>Device</IonLabel>
               <IonLabel style={{ fontSize: ".9rem", fontWeight: "bold" }}>
-                connected
+                {isDeviceConnected ? "connected" : "offline"}
               </IonLabel>
             </div>
             <div className="user-card-items">
@@ -293,22 +323,25 @@ const Home: React.FC<ContainerProps> = () => {
           shape="round"
           fill="solid"
         >
-          {showCountdown ? <span>Sending...</span> : <span>Alert</span>}
+          {showCountdown ? <span>Alerting...</span> : <span>Alert</span>}
           <IonIcon slot="end" icon={checkmarkDoneCircleSharp} />
         </IonButton>
-        <IonButton
-          disabled={showCountdown}
-          expand="block"
-          color="danger"
-          onClick={() => {
-            console.log(">> alert only selected friends");
-          }}
-          shape="round"
-          fill="outline"
-        >
-          Alert Friends
-          <IonIcon slot="end" icon={personCircleSharp} />
-        </IonButton>
+        {showCountdown && (
+          <IonButton
+            disabled={!showCountdown}
+            expand="block"
+            color="success"
+            onClick={() => {
+              setShowCountdown(false);
+              setSpeed("100");
+            }}
+            shape="round"
+            fill="solid"
+          >
+            I am alright !! Abort SOS
+            <IonIcon slot="end" icon={happy} />
+          </IonButton>
+        )}
       </div>
     </>
   );

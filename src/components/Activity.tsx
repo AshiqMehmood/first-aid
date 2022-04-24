@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { IonAlert, IonLoading } from "@ionic/react";
+import { IonAlert, IonButton, IonLoading } from "@ionic/react";
 import firebaseModules from "../firebaseService";
 import {
   collection,
@@ -14,6 +14,7 @@ import {
   orderBy,
   onSnapshot,
   limit,
+  GeoPoint,
 } from "firebase/firestore";
 import useStore from "../store";
 import CardComponent from "./CardComponent";
@@ -50,7 +51,7 @@ const Activity: React.FC = () => {
   const readActivity = async (q: any) => {
     const querySnapshot = await getDocs(q);
     const listOfMessages: Array<any> = [];
-    querySnapshot.forEach((doc) => {
+    querySnapshot.forEach((doc: any) => {
       listOfMessages.push(doc.data());
     });
     setActivities(listOfMessages);
@@ -74,13 +75,13 @@ const Activity: React.FC = () => {
     } catch (err) {
       console.error(err);
     }
-    const updatedActivityList = activities.filter(
+    let updatedActivityList = activities.filter(
       (item) =>
         item.contact !== val.contact &&
         new Date(item.created_at.seconds * 1000).toString() !==
           new Date(val.created_at.seconds * 1000).toString()
     );
-    setActivities([...updatedActivityList]);
+    setActivities(updatedActivityList);
     setShowLoader(false);
   };
 
@@ -114,9 +115,11 @@ const Activity: React.FC = () => {
       {activities &&
         activities.map((item) => (
           <CardComponent
-            key={item.created_at.toString() || ""}
+            key={(item.created_at.seconds * 1000).toString()}
             contactName={item.contact || ""}
-            placeofIncidence={item.place || "unknown"}
+            placeofIncidence={
+              JSON.parse(JSON.stringify(item.place)) || "unknown"
+            }
             reportingTime={item.created_at || ""}
             status={item.status || "closed"}
             onDelete={() => {

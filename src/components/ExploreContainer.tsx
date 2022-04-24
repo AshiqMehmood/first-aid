@@ -1,4 +1,4 @@
-import { useEffect, useState, lazy, Suspense } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useHistory } from "react-router-dom";
 import {
   IonButton,
@@ -16,6 +16,15 @@ import {
   IonSpinner,
 } from "@ionic/react";
 import {
+  collection,
+  updateDoc,
+  doc,
+  query,
+  where,
+  orderBy,
+  onSnapshot,
+} from "firebase/firestore";
+import {
   informationCircleOutline,
   closeOutline,
   notificationsSharp,
@@ -31,22 +40,26 @@ import Settings from "./Settings";
 import LoginModal from "./LoginModal";
 import ToastComponent from "./ToastComponent";
 import "./ExploreContainer.css";
+import firebaseModules from "../firebaseService";
 
 interface ContainerProps {
   name: string;
 }
+const { db } = firebaseModules;
 
 const ExploreContainer: React.FC<ContainerProps> = ({ name }) => {
   const {
     setLogin,
     isLoginModalOpen,
     setLoginModalOpen,
-    activities,
-    username,
+    setShowCountdown,
+    deviceId,
+    isDeviceConnected,
   } = useStore();
-  const history = useHistory();
   const [showPopover, setShowPopover] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [showSensorAlert, setSensorAlert] = useState(false);
+  const [triggerId, setTriggerId] = useState("");
 
   const tabToRender = (name: string) => {
     switch (name) {
@@ -61,6 +74,49 @@ const ExploreContainer: React.FC<ContainerProps> = ({ name }) => {
       default:
         return <Home />;
     }
+  };
+  const memoizedSensorTrigger = useCallback(() => {
+    if (isDeviceConnected) {
+      console.log(">>>sensor tracker running now .....!", deviceId);
+      const q = query(collection(db, "devices", deviceId, "triggers"));
+      let listOfSensorReading: Array<any> = [];
+      const sensorTracker = onSnapshot(q, (snapshot) => {
+        snapshot.forEach((docs) => {
+          if (docs.exists()) {
+            if (
+              listOfSensorReading.length === 0 &&
+              docs.data().shouldAlert === "pending"
+            ) {
+              listOfSensorReading.push(docs.data());
+              setTriggerId(docs.id);
+              console.log("alertnow !!!");
+              setSensorAlert(true);
+              setTimeout(() => {
+                console.log(">>> sending SOS automatically..", docs.id);
+                sendSOSconfirmation(docs.id);
+                setSensorAlert(false);
+                setShowCountdown(true);
+              }, 5000 * 2);
+            }
+          }
+        });
+      });
+
+      return sensorTracker;
+    }
+  }, [isDeviceConnected]);
+
+  useEffect(() => {
+    const unsubscribe = memoizedSensorTrigger();
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [memoizedSensorTrigger]);
+
+  const sendSOSconfirmation = async (triggerId: string) => {
+    await updateDoc(doc(db, "devices", deviceId, "triggers", triggerId), {
+      shouldAlert: "yes",
+    });
   };
 
   const closeLoginModal = () => {
@@ -140,6 +196,33 @@ const ExploreContainer: React.FC<ContainerProps> = ({ name }) => {
                 await setShowToast(true);
                 await setLogin(false);
                 await setLoginModalOpen(true);
+              },
+            },
+          ]}
+        />
+        <IonAlert
+          isOpen={showSensorAlert}
+          onDidDismiss={() => setSensorAlert(false)}
+          cssClass="my-custom-class"
+          header={"Fall Detected !!"}
+          message={`SOS will be automatically sent in few seconds. Please abort if not required`}
+          buttons={[
+            {
+              text: "Abort",
+              role: "cancel",
+              cssClass: "secondary",
+              id: "cancel-button",
+              handler: () => {
+                console.log("dismissed !");
+              },
+            },
+            {
+              text: "Send Alert",
+              id: "confirm-button",
+              cssClass: "confirm-button",
+              handler: async () => {
+                console.log(">>proceed to confirm : ", triggerId);
+                sendSOSconfirmation(triggerId);
               },
             },
           ]}

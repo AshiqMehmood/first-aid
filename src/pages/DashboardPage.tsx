@@ -6,6 +6,7 @@ import {
   IonLabel,
   IonBadge,
   IonTabs,
+  IonAlert,
 } from "@ionic/react";
 import { useParams, useLocation } from "react-router";
 import { IonReactRouter } from "@ionic/react-router";
@@ -54,7 +55,7 @@ const Page: React.FC<PageProps> = ({ tab }) => {
       querySnapshot.forEach((doc) => {
         listOfMessages.push(doc.data());
       });
-      
+
       const cachedActivities = //@ts-ignore
         JSON.parse(localStorage.getItem("app-activities")) || [];
       const newData = listOfMessages.filter(

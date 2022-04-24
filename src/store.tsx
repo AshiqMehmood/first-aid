@@ -17,6 +17,10 @@ interface types {
   setSpeed: (val: string) => void;
   activities: Array<any>;
   setActivities: (val: any) => void;
+  deviceId: string;
+  setDeviceId: (val: any) => void;
+  isDeviceConnected: boolean;
+  setDeviceConnection: (val: any) => void;
 }
 
 const useStore = create<types>((set: any) => ({
@@ -48,6 +52,13 @@ const useStore = create<types>((set: any) => ({
 
   activities: [],
   setActivities: (val: any) => set((state: any) => ({ activities: [...val] })),
+
+  deviceId: "#SOS-000",
+  setDeviceId: (val: any) => set((state: any) => ({ deviceId: val })),
+
+  isDeviceConnected: false,
+  setDeviceConnection: (val: any) =>
+    set((state: any) => ({ isDeviceConnected: val })),
 }));
 
 
