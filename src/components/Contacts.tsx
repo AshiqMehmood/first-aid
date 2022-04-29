@@ -51,12 +51,17 @@ const Contacts: React.FC<ContainerProps> = ({ exitModal }) => {
   const [myRecipients, setRecipients] = useState<Array<any>>([]);
   const [allContacts, setContacts] = useState<Array<any>>([]);
   const [showToast, setShowToast] = useState(false);
-  const { username } = useStore();
+  const { username, setRecipientCount } = useStore();
   const RECIPIENT_LIMIT = 6;
   useEffect(() => {
     //fetch all contacts from firebase
     fetchAllContacts();
   }, []);
+
+  useEffect(() => {
+    setRecipientCount(myRecipients.length);
+    console.log(">>>>", myRecipients.length);
+  }, [myRecipients]);
 
   const fetchAllContacts = async () => {
     // first fetch all added recipients
@@ -166,10 +171,14 @@ const Contacts: React.FC<ContainerProps> = ({ exitModal }) => {
                 />
               </IonChip>
             ))}
-          {myRecipients.length === 0 && (
+          {myRecipients && myRecipients.length === 0 && (
             <IonItem>
-              <IonIcon slot="start" icon={informationCircleOutline}></IonIcon>
-              <IonLabel>
+              <IonIcon
+                color="danger"
+                slot="start"
+                icon={informationCircleOutline}
+              ></IonIcon>
+              <IonLabel color="danger">
                 <h3>No Contacts added</h3>
               </IonLabel>
             </IonItem>
@@ -182,7 +191,7 @@ const Contacts: React.FC<ContainerProps> = ({ exitModal }) => {
                 <IonIcon slot="start" icon={personCircle}></IonIcon>
                 <IonLabel>
                   <h3>{item.firstname}</h3>
-                  <p>location: {item.place || "unknown"}</p>
+                  <p>place: {item.place || "unknown"}</p>
                 </IonLabel>
                 <IonButton
                   color="tertiary"

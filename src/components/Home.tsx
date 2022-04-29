@@ -23,6 +23,7 @@ import {
 import {
   checkmarkDoneCircleSharp,
   happy,
+  informationCircleOutline,
   locate,
   personAddSharp,
 } from "ionicons/icons";
@@ -30,7 +31,7 @@ import firebaseModules from "../firebaseService";
 import {
   collection,
   addDoc,
-  getDocs,
+  getDoc,
   doc,
   deleteDoc,
   setDoc,
@@ -53,6 +54,7 @@ import useStore from "../store";
 import Contacts from "./Contacts";
 import AlertSOSComponent from "./AlertSosComponent";
 import NotificationList from "./NotificationList";
+import ToastComponent from "./ToastComponent";
 import "./Home.css";
 
 const { db } = firebaseModules;
@@ -72,11 +74,15 @@ const Home: React.FC<ContainerProps> = () => {
     speed,
     setSpeed,
     isDeviceConnected,
+    currentUserDetails,
+    setCurrentUserDetails,
+    recipientCount,
   } = useStore();
   const nullEntry: any[] = [];
   const [notifications, setNotifications] = useState(nullEntry);
   const [notifModalOpen, setNotifModal] = useState(false);
   const [contactsModalOpen, setContactsModals] = useState(false);
+  const [showAddContactsError, setShowContactsError] = useState(false);
   const countdown = 10 * 1000;
   const [timer, setTimer] = useState(countdown);
   const [inputText, setText] = useState("");
@@ -117,11 +123,23 @@ const Home: React.FC<ContainerProps> = () => {
     return () => {
       isMounted = false;
     };
-  }, [username]);
+  }, []);
 
   useEffect(() => {
     geoLocationOfUser();
   }, []);
+
+  useEffect(() => {
+    getUserDetails();
+  }, [recipientCount]);
+
+  const getUserDetails = async () => {
+    const userDetails = doc(db, "users", username);
+    const docs = await getDoc(userDetails);
+    if (docs.exists()) {
+      setCurrentUserDetails(docs.data());
+    }
+  };
 
   const registerPush = async (isMounted: boolean) => {
     const isTokenAvailable = localStorage.getItem("app-token");
@@ -199,16 +217,6 @@ const Home: React.FC<ContainerProps> = () => {
   };
 
   const sendAlert = async () => {
-    //to set document with specific ID
-    // const newData = await addDoc(
-    //   collection(db, "users", "mehmood", "activity"),
-    //   {
-    //     contact: "niranjana",
-    //     place: "trivandrum",
-    //     created_at: serverTimestamp(),
-    //   }
-    // );
-
     const sfDocRef = doc(db, "users", username);
     try {
       await runTransaction(db, async (transaction) => {
@@ -225,7 +233,7 @@ const Home: React.FC<ContainerProps> = () => {
             contact: username,
             created_at: serverTimestamp(),
             status: "active",
-            place: new GeoPoint(currentLocation.lat, currentLocation.lon),
+            location: new GeoPoint(currentLocation.lat, currentLocation.lon),
           });
         });
         console.log("Transaction successfully committed!");
@@ -256,6 +264,21 @@ const Home: React.FC<ContainerProps> = () => {
     }
   };
 
+  const checkRecipientsAdded = async () => {
+    const userDetails = doc(db, "users", username);
+    const fields = await getDoc(userDetails);
+    if (fields.exists()) {
+      //if there are recipients added, then only start countdown
+      if (fields.data().people && fields.data().people.length > 0) {
+        setShowCountdown(true);
+        setSpeed("1");
+      } else {
+        //show alert that no recipients are available
+        setShowContactsError(true);
+      }
+    }
+  };
+
   return (
     <>
       <IonFab vertical="bottom" horizontal="end" slot="fixed">
@@ -278,7 +301,7 @@ const Home: React.FC<ContainerProps> = () => {
             <div className="user-card-items">
               <IonLabel style={{ fontSize: ".7rem" }}>Contacts</IonLabel>
               <IonLabel style={{ fontSize: ".9rem", fontWeight: "bold" }}>
-                7
+                {currentUserDetails.people.length || "0"}
               </IonLabel>
             </div>
             <div className="user-card-items">
@@ -309,6 +332,12 @@ const Home: React.FC<ContainerProps> = () => {
           exitModal={closeNotifModal}
         />
       </IonModal>
+      <ToastComponent
+        onDismiss={() => setShowContactsError(false)}
+        message="Please add any contacts to continue."
+        infoIcon={informationCircleOutline}
+        showToast={showAddContactsError}
+      />
 
       <AlertSOSComponent alert={sendAlert} />
       <div style={{ marginTop: "2em" }}>
@@ -316,10 +345,7 @@ const Home: React.FC<ContainerProps> = () => {
           disabled={showCountdown}
           expand="block"
           color="danger"
-          onClick={() => {
-            setShowCountdown(true);
-            setSpeed("1");
-          }}
+          onClick={() => checkRecipientsAdded()}
           shape="round"
           fill="solid"
         >

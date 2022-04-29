@@ -1,8 +1,8 @@
 import create from 'zustand'
 
 interface types {
-  count: number;
-  setCount: (val: number) => void;
+  recipientCount: number;
+  setRecipientCount: (val: number) => void;
   username: string;
   setUsername: (val: string) => void;
   isLoggedIn: boolean;
@@ -21,12 +21,19 @@ interface types {
   setDeviceId: (val: any) => void;
   isDeviceConnected: boolean;
   setDeviceConnection: (val: any) => void;
+  currentUserDetails: {
+    firstname: string;
+    tokenId: string;
+    people: Array<any>;
+    place: string;
+  };
+  setCurrentUserDetails: (val: object) => void;
 }
 
 const useStore = create<types>((set: any) => ({
-  count: 0,
-  setCount: (value: number) =>
-    set((state: any) => ({ count: state.count + 1 })),
+  recipientCount: 0,
+  setRecipientCount: (value: number) =>
+    set((state: any) => ({ recipientCount: value })),
 
   username: localStorage.getItem("app-username") || "",
   setUsername: (value: string) =>
@@ -39,7 +46,8 @@ const useStore = create<types>((set: any) => ({
   setLoginModalOpen: (value: boolean) =>
     set((state: any) => ({ isLoginModalOpen: value })),
 
-  registrationTokenId: "token--###--1242-ab38j9",
+  registrationTokenId:
+    localStorage.getItem("app-token") || "token--###--1234-sample",
   setRegToken: (value: string) =>
     set((state: any) => ({ registrationTokenId: value })),
 
@@ -59,6 +67,15 @@ const useStore = create<types>((set: any) => ({
   isDeviceConnected: false,
   setDeviceConnection: (val: any) =>
     set((state: any) => ({ isDeviceConnected: val })),
+
+  currentUserDetails: {
+    firstname: "",
+    tokenId: "",
+    people: [],
+    place: "",
+  },
+  setCurrentUserDetails: (val: object) =>
+    set((state: object) => ({ currentUserDetails: val })),
 }));
 
 

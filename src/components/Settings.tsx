@@ -16,6 +16,8 @@ import {
   query,
   where,
   collection,
+  updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import { addOutline, trashBinOutline } from "ionicons/icons";
 import useStore from "../store";
@@ -24,8 +26,9 @@ import firebaseModules from "../firebaseService";
 const { db } = firebaseModules;
 
 const Settings: React.FC = () => {
-  const [isDeviceAvailable, setDevice] = useState(false);
+  const [isConnectionSent, setConnectionSent] = useState(false);
   const [isCentresEnabled, setCentres] = useState(false);
+  const [isDeviceRequired, setDeviceRequired] = useState(false);
   const [inputDeviceId, setDeviceInput] = useState<any>("");
   const {
     deviceId,
@@ -37,7 +40,7 @@ const Settings: React.FC = () => {
 
   useEffect(() => {
     checkDeviceConnection();
-  }, [isDeviceConnected]);
+  }, []);
   const checkDeviceConnection = async () => {
     const q = query(
       collection(db, "devices"),
@@ -48,10 +51,15 @@ const Settings: React.FC = () => {
       if (docs.exists()) {
         setDeviceInput(docs.data().deviceId);
         setDeviceId(docs.data().deviceId);
-        setDeviceConnection(true);
+        setDeviceRequired(true);
+        if (docs.data().status === "connecting") {
+          setConnectionSent(true);
+        }
+        if (docs.data().status === "approved") {
+          setDeviceConnection(true);
+        }
       }
       // get update from device
-      // set status as 'connected' in App
     });
   };
   const connectToDevice = async () => {
@@ -64,6 +72,14 @@ const Settings: React.FC = () => {
     });
     //push to store
     setDeviceId(inputDeviceId);
+    setConnectionSent(true);
+  };
+
+  const removeDevice = async () => {
+    console.log(">>>>removed", deviceId);
+    const deviceDetails = doc(db, "devices", deviceId);
+    await deleteDoc(deviceDetails);
+    setDeviceConnection(false);
   };
   return (
     <div>
@@ -75,11 +91,14 @@ const Settings: React.FC = () => {
           <IonLabel>Connect with sensor</IonLabel>
           <IonToggle
             color="tertiary"
-            checked={isDeviceConnected}
-            onIonChange={(e) => setDeviceConnection(e.detail.checked)}
+            checked={isDeviceRequired}
+            onIonChange={(e) => {
+              setDeviceRequired(e.detail.checked);
+              if (!e.detail.checked) removeDevice();
+            }}
           />
         </IonItem>
-        {isDeviceConnected && (
+        {isDeviceRequired && (
           <IonItem>
             <IonLabel>Sensor:</IonLabel>
             <IonInput
@@ -90,9 +109,10 @@ const Settings: React.FC = () => {
             <IonButton
               slot="end"
               color="tertiary"
+              disabled={isDeviceConnected || isConnectionSent}
               onClick={() => connectToDevice()}
             >
-              Connect
+              {isDeviceConnected ? "Connected" : "Connect"}
             </IonButton>
           </IonItem>
         )}

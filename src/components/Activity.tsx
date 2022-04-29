@@ -118,7 +118,7 @@ const Activity: React.FC = () => {
             key={(item.created_at.seconds * 1000).toString()}
             contactName={item.contact || ""}
             placeofIncidence={
-              JSON.parse(JSON.stringify(item.place)) || "unknown"
+              JSON.parse(JSON.stringify(item.location)) || "unknown"
             }
             reportingTime={item.created_at || ""}
             status={item.status || "closed"}
