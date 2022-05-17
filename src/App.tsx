@@ -46,9 +46,6 @@ const App: React.FC = () => {
           <Route path="/page/Activity" exact={true}>
             <Page tab="Activity" />
           </Route>
-          <Route path="/page/Map" exact={true}>
-            <Page tab="Map" />
-          </Route>
           <Route path="/page/Settings" exact={true}>
             <Page tab="Settings" />
           </Route>

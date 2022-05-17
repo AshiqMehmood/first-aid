@@ -28,6 +28,16 @@ interface types {
     place: string;
   };
   setCurrentUserDetails: (val: object) => void;
+  selectedActivity: {
+    latitude: string;
+    longitude: string;
+  };
+  setSelectedActivity: (val: object) => void;
+  userLocation: {
+    latitude: string;
+    longitude: string;
+  };
+  setUserLocation: (val: object) => void;
 }
 
 const useStore = create<types>((set: any) => ({
@@ -76,6 +86,17 @@ const useStore = create<types>((set: any) => ({
   },
   setCurrentUserDetails: (val: object) =>
     set((state: object) => ({ currentUserDetails: val })),
+  selectedActivity: {
+    latitude: "0",
+    longitude: "0",
+  },
+  setSelectedActivity: (val: object) => set(() => ({ selectedActivity: val })),
+
+  userLocation: {
+    latitude: "0",
+    longitude: "0",
+  },
+  setUserLocation: (val: object) => set(() => ({ userLocation: val })),
 }));
 
 

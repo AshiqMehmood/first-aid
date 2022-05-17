@@ -27,6 +27,7 @@ interface CardProps {
   };
   status: string;
   onDelete: () => void;
+  locatePersonOnMap: () => void;
 }
 const CardComponent: React.FC<CardProps> = ({
   contactName,
@@ -34,6 +35,7 @@ const CardComponent: React.FC<CardProps> = ({
   placeofIncidence,
   status,
   onDelete,
+  locatePersonOnMap,
 }) => {
   const formatDate = () => {
     const dateTime = new Date(reportingTime.seconds * 1000);
@@ -121,7 +123,8 @@ const CardComponent: React.FC<CardProps> = ({
         expand="block"
         fill="solid"
         shape="round"
-        href={`https://www.google.com/maps/@${placeofIncidence.latitude},${placeofIncidence.longitude}`}
+        onClick={locatePersonOnMap}
+        //href={`https://www.google.com/maps/@${placeofIncidence.latitude},${placeofIncidence.longitude}`}
       >
         Locate
       </IonButton>

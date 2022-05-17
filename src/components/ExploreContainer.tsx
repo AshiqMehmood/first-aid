@@ -35,7 +35,6 @@ import useStore from "../store";
 import { App } from "@capacitor/app";
 import Home from "./Home";
 import Activity from "./Activity";
-import Map from "./Map";
 import Settings from "./Settings";
 import LoginModal from "./LoginModal";
 import ToastComponent from "./ToastComponent";
@@ -48,6 +47,7 @@ interface ContainerProps {
 const { db } = firebaseModules;
 
 const ExploreContainer: React.FC<ContainerProps> = ({ name }) => {
+  //const history = useHistory();
   const {
     setLogin,
     isLoginModalOpen,
@@ -67,8 +67,6 @@ const ExploreContainer: React.FC<ContainerProps> = ({ name }) => {
         return <Home />;
       case "Activity":
         return <Activity />;
-      case "Map":
-        return <Map />;
       case "Settings":
         return <Settings />;
       default:

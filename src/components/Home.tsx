@@ -67,6 +67,7 @@ interface GeoTypes {
 const Home: React.FC<ContainerProps> = () => {
   const {
     username,
+    isLoggedIn,
     registrationTokenId,
     setRegToken,
     showCountdown,
@@ -77,6 +78,7 @@ const Home: React.FC<ContainerProps> = () => {
     currentUserDetails,
     setCurrentUserDetails,
     recipientCount,
+    setUserLocation,
   } = useStore();
   const nullEntry: any[] = [];
   const [notifications, setNotifications] = useState(nullEntry);
@@ -85,7 +87,6 @@ const Home: React.FC<ContainerProps> = () => {
   const [showAddContactsError, setShowContactsError] = useState(false);
   const countdown = 10 * 1000;
   const [timer, setTimer] = useState(countdown);
-  const [inputText, setText] = useState("");
   const [currentLocation, setCurrentLocation] = useState<GeoTypes>({
     lat: 0,
     lon: 0,
@@ -123,7 +124,7 @@ const Home: React.FC<ContainerProps> = () => {
     return () => {
       isMounted = false;
     };
-  }, []);
+  }, [username, isLoggedIn]);
 
   useEffect(() => {
     geoLocationOfUser();
@@ -131,7 +132,7 @@ const Home: React.FC<ContainerProps> = () => {
 
   useEffect(() => {
     getUserDetails();
-  }, [recipientCount]);
+  }, [recipientCount, username, isLoggedIn]);
 
   const getUserDetails = async () => {
     const userDetails = doc(db, "users", username);
@@ -142,7 +143,6 @@ const Home: React.FC<ContainerProps> = () => {
   };
 
   const registerPush = async (isMounted: boolean) => {
-    const isTokenAvailable = localStorage.getItem("app-token");
     if (isPushNotificationAvailable) {
       await PushNotifications.register();
       await PushNotifications.addListener("registration", (token: Token) => {
@@ -150,16 +150,14 @@ const Home: React.FC<ContainerProps> = () => {
         if (isMounted) {
           setRegToken(token.value);
           localStorage.setItem("app-token", token.value); //store token to local storage
+          console.info(">> sending token to firebase..");
+          //store regToken in firebase
+          updateToken(token.value);
           showToast("Push registration success !");
         }
       });
-      if (isTokenAvailable) {
-        console.info(">> sending token to firebase..");
-        //store regToken in firebase
-        updateToken();
-      }
       await PushNotifications.addListener("registrationError", (err: any) => {
-        showToast("Token registration failed !");
+        showToast("Push registration failed");
       });
     }
 
@@ -244,10 +242,10 @@ const Home: React.FC<ContainerProps> = () => {
     console.log("Pushed to firebase !");
   };
 
-  const updateToken = async () => {
+  const updateToken = async (value: string) => {
     const userDetails = doc(db, "users", username);
     await updateDoc(userDetails, {
-      tokenId: registrationTokenId,
+      tokenId: value,
     });
   };
 
@@ -259,6 +257,7 @@ const Home: React.FC<ContainerProps> = () => {
         lon: coordinates.coords.longitude,
       };
       setCurrentLocation(location);
+      setUserLocation(location);
     } catch (err) {
       console.error("Unable to fetch coordinates", err);
     }
@@ -289,7 +288,9 @@ const Home: React.FC<ContainerProps> = () => {
 
       <IonCard className="user-card-wrapper">
         <IonCardHeader>
-          <IonCardSubtitle>ID: 1234</IonCardSubtitle>
+          <IonCardSubtitle color="medium">
+            ID: {registrationTokenId.slice(0, 16)}
+          </IonCardSubtitle>
           <IonCardTitle>Hi, {username.toUpperCase()}</IonCardTitle>
           <div className="user-card-container">
             <div className="user-card-items">
@@ -301,13 +302,15 @@ const Home: React.FC<ContainerProps> = () => {
             <div className="user-card-items">
               <IonLabel style={{ fontSize: ".7rem" }}>Contacts</IonLabel>
               <IonLabel style={{ fontSize: ".9rem", fontWeight: "bold" }}>
-                {currentUserDetails.people.length || "0"}
+                {(currentUserDetails.people &&
+                  currentUserDetails.people.length) ||
+                  "0"}
               </IonLabel>
             </div>
             <div className="user-card-items">
               <IonLabel style={{ fontSize: ".7rem" }}>Location</IonLabel>
               <IonLabel style={{ fontSize: ".9rem", fontWeight: "bold" }}>
-                trivandrum
+                {currentUserDetails.place || "Not Available"}
               </IonLabel>
             </div>
           </div>

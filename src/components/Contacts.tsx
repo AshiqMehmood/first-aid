@@ -13,6 +13,8 @@ import {
   IonLabel,
   IonChip,
   IonListHeader,
+  IonSkeletonText,
+  IonAvatar,
 } from "@ionic/react";
 import {
   addCircle,
@@ -51,6 +53,7 @@ const Contacts: React.FC<ContainerProps> = ({ exitModal }) => {
   const [myRecipients, setRecipients] = useState<Array<any>>([]);
   const [allContacts, setContacts] = useState<Array<any>>([]);
   const [showToast, setShowToast] = useState(false);
+  const [isContactsLoaded, setLoadedContacts] = useState(false);
   const { username, setRecipientCount } = useStore();
   const RECIPIENT_LIMIT = 6;
   useEffect(() => {
@@ -60,7 +63,6 @@ const Contacts: React.FC<ContainerProps> = ({ exitModal }) => {
 
   useEffect(() => {
     setRecipientCount(myRecipients.length);
-    console.log(">>>>", myRecipients.length);
   }, [myRecipients]);
 
   const fetchAllContacts = async () => {
@@ -87,7 +89,7 @@ const Contacts: React.FC<ContainerProps> = ({ exitModal }) => {
       setContacts([
         ...contactsNotAdded.filter((user) => user.firstname !== username),
       ]);
-      console.log("running fetch contacts...");
+      setLoadedContacts(true);
     }
   };
 
@@ -144,6 +146,23 @@ const Contacts: React.FC<ContainerProps> = ({ exitModal }) => {
     deleteFromRecipientsList(val);
   };
 
+  const SkeletonLoader = () => (
+    <IonItem>
+      <IonAvatar slot="start">
+        <IonSkeletonText animated />
+      </IonAvatar>
+      <IonLabel>
+        <h3>
+          <IonSkeletonText animated style={{ width: "50%" }} />
+        </h3>
+        <p>
+          <IonSkeletonText animated style={{ width: "80%" }} />
+        </p>
+      </IonLabel>
+      <IonSkeletonText animated style={{ width: "15%", height: "40%" }} />
+    </IonItem>
+  );
+
   return (
     <IonPage>
       <IonHeader>
@@ -151,6 +170,16 @@ const Contacts: React.FC<ContainerProps> = ({ exitModal }) => {
           <IonButtons slot="start">
             <IonButton slot="start" onClick={() => exitModal()}>
               <IonIcon slot="icon-only" icon={closeOutline} />
+            </IonButton>
+          </IonButtons>
+          <IonButtons slot="end">
+            <IonButton
+              disabled={myRecipients.length === 0}
+              slot="end"
+              color="primary"
+              onClick={() => exitModal()}
+            >
+              Done
             </IonButton>
           </IonButtons>
           <IonTitle>Contacts</IonTitle>
@@ -203,6 +232,25 @@ const Contacts: React.FC<ContainerProps> = ({ exitModal }) => {
                 </IonButton>
               </IonItem>
             ))}
+          {allContacts.length === 0 && isContactsLoaded && (
+            <IonItem>
+              <IonIcon
+                color="danger"
+                slot="start"
+                icon={informationCircleOutline}
+              ></IonIcon>
+              <IonLabel color="danger">
+                <h3>Oops ! No users found</h3>
+              </IonLabel>
+            </IonItem>
+          )}
+          {!isContactsLoaded && (
+            <div>
+              {["1", "2", "3", "4", "5", "6", "7", "8"].map((item) => (
+                <SkeletonLoader key={item} />
+              ))}
+            </div>
+          )}
         </IonList>
         <ToastComponent
           message={`You can only add upto ${RECIPIENT_LIMIT} contacts`}

@@ -35,6 +35,7 @@ import {
   orderBy,
   onSnapshot,
 } from "firebase/firestore";
+import LandingPage from "./LandingPage";
 const ExploreContainer = lazy(() => import("../components/ExploreContainer"));
 
 const { db } = firebaseModules;
@@ -46,7 +47,7 @@ const Page: React.FC<PageProps> = ({ tab }) => {
   const { pathname } = useLocation();
   const name = pathname.replace(/\/page\//g, "");
   const [newActivityCount, setActivityCount] = useState(0);
-  const { username } = useStore();
+  const { username, isLoggedIn } = useStore();
 
   const memoizedActivityTracker = useCallback(() => {
     const q = query(collection(db, "users", username, "activity"));
@@ -77,14 +78,14 @@ const Page: React.FC<PageProps> = ({ tab }) => {
     return () => {
       unsubscribe();
     };
-  }, [memoizedActivityTracker]);
+  }, [memoizedActivityTracker, username, isLoggedIn]);
 
   return (
     <IonTabs>
       <IonRouterOutlet>
         <Suspense fallback={<FallBackUI />}>
           <IonReactRouter>
-            {["Home", "Activity", "Map", "Settings"].map((path) => (
+            {["Home", "Activity", "Settings"].map((path) => (
               <Route key={path} path={`/page/${path}`} exact={true}>
                 <ExploreContainer name={tab} />
               </Route>
@@ -103,11 +104,6 @@ const Page: React.FC<PageProps> = ({ tab }) => {
           {newActivityCount !== 0 && (
             <IonBadge color="danger">{newActivityCount}</IonBadge>
           )}
-        </IonTabButton>
-
-        <IonTabButton tab="Map" href="/page/Map">
-          <IonIcon icon={map} />
-          <IonLabel>Map</IonLabel>
         </IonTabButton>
 
         <IonTabButton tab="Settings" href="/page/Settings">
