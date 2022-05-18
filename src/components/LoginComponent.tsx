@@ -95,6 +95,7 @@ const LoginComponent: React.FC<LoginProps> = ({ isLandingPage, exitModal }) => {
       firstname: textValue,
       place: placeValue,
       timestamp: serverTimestamp(),
+      tokenId: "token-#001-999",
       people: [],
     });
   };

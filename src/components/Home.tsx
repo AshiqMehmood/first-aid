@@ -85,6 +85,7 @@ const Home: React.FC<ContainerProps> = () => {
   const [notifModalOpen, setNotifModal] = useState(false);
   const [contactsModalOpen, setContactsModals] = useState(false);
   const [showAddContactsError, setShowContactsError] = useState(false);
+  const [haveGpsPermission, setGpsPermission] = useState(true);
   const countdown = 10 * 1000;
   const [timer, setTimer] = useState(countdown);
   const [currentLocation, setCurrentLocation] = useState<GeoTypes>({
@@ -260,6 +261,7 @@ const Home: React.FC<ContainerProps> = () => {
       setUserLocation(location);
     } catch (err) {
       console.error("Unable to fetch coordinates", err);
+      setGpsPermission(false);
     }
   };
 
@@ -340,6 +342,12 @@ const Home: React.FC<ContainerProps> = () => {
         message="Please add any contacts to continue."
         infoIcon={informationCircleOutline}
         showToast={showAddContactsError}
+      />
+      <ToastComponent
+        infoIcon={informationCircleOutline}
+        showToast={!haveGpsPermission}
+        message="GPS is offline."
+        onDismiss={() => console.log("dismissed")}
       />
 
       <AlertSOSComponent alert={sendAlert} />

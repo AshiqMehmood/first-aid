@@ -23,6 +23,7 @@ import useStore from "../store";
 import CardComponent from "./CardComponent";
 import Map from "./Map";
 import { informationCircleOutline } from "ionicons/icons";
+import ToastComponent from "./ToastComponent";
 
 const { db } = firebaseModules;
 
@@ -31,7 +32,7 @@ const Activity: React.FC = () => {
   const [showPopover, setShowPopover] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
   const [showGMap, setShowGMap] = useState(false);
-  const [haveGPSPermission, setGPSPermission] = useState(false);
+  const [haveGPSPermission, setGPSPermission] = useState(true);
   const {
     username,
     activities,
@@ -56,7 +57,7 @@ const Activity: React.FC = () => {
       setUserLocation(location);
       setGPSPermission(true);
     } catch (err) {
-      console.error("Unable to fetch coordinates", err);
+      //console.error("Unable to fetch coordinates", err);
       setGPSPermission(false);
     }
   };
@@ -198,6 +199,12 @@ const Activity: React.FC = () => {
           havePermission={haveGPSPermission}
         />
       </IonModal>
+      <ToastComponent
+        infoIcon={informationCircleOutline}
+        showToast={!haveGPSPermission}
+        message="GPS is offline."
+        onDismiss={() => console.log("dismissed")}
+      />
     </div>
   );
 };

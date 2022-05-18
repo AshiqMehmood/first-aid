@@ -53,21 +53,21 @@ const Page: React.FC<PageProps> = ({ tab }) => {
     const q = query(collection(db, "users", username, "activity"));
     const activityTrackerUnsubscribe = onSnapshot(q, (querySnapshot) => {
       const listOfMessages: Array<any> = [];
-      querySnapshot.forEach((doc) => {
-        listOfMessages.push(doc.data());
+      querySnapshot.forEach((doc: any) => {
+        let q = {};
+        q = {
+          ...doc.data(),
+          id: doc.id,
+        };
+        listOfMessages.push(q);
       });
-
       const cachedActivities = //@ts-ignore
         JSON.parse(localStorage.getItem("app-activities")) || [];
-      const newData = listOfMessages.filter(
-        (item) =>
-          !cachedActivities.find(
-            (docs: any) =>
-              docs.contact === item.contact &&
-              new Date(docs.created_at.seconds * 1000).toString() ===
-                new Date(item.created_at.seconds * 1000).toString()
-          )
-      );
+      const newData =
+        listOfMessages &&
+        listOfMessages.filter(
+          (item) => !cachedActivities.find((docs: any) => docs.id === item.id)
+        );
       setActivityCount(newData.length);
     });
     return activityTrackerUnsubscribe;

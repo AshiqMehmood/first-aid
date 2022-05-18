@@ -57,7 +57,7 @@ const Map: React.FC<MapProps> = ({
               allowFullScreen
               src={`https://www.google.com/maps/embed/v1/directions?zoom=16&center=${
                 selectedActivity.latitude + "," + selectedActivity.longitude
-              }&key=AIzaSyBBOdS9_BPX98FOo59Gsv2zwHhNHCoFkt8&origin=${
+              }&key=${process.env.REACT_APP_GMAP_KEY}&origin=${
                 originCoords.latitude + "," + originCoords.longitude
               }
             &destination=${
@@ -75,7 +75,7 @@ const Map: React.FC<MapProps> = ({
               allowFullScreen
               src={`https://www.google.com/maps/embed/v1/place?zoom=14&q=${
                 selectedActivity.latitude + "," + selectedActivity.longitude
-              }&key=AIzaSyBBOdS9_BPX98FOo59Gsv2zwHhNHCoFkt8`}
+              }&key=${process.env.REACT_APP_GMAP_KEY}`}
             ></iframe>
           )}
         </div>
