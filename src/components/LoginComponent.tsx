@@ -104,6 +104,7 @@ const LoginComponent: React.FC<LoginProps> = ({ isLandingPage, exitModal }) => {
     const userDetails = doc(db, "users", textValue);
     updateDoc(userDetails, {
       place: placeValue,
+      timestamp: serverTimestamp(),
     });
     console.log("updated user place...");
   };

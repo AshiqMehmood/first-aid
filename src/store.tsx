@@ -71,7 +71,7 @@ const useStore = create<types>((set: any) => ({
   activities: [],
   setActivities: (val: any) => set((state: any) => ({ activities: [...val] })),
 
-  deviceId: "#SOS-000",
+  deviceId: "SOS999",
   setDeviceId: (val: any) => set((state: any) => ({ deviceId: val })),
 
   isDeviceConnected: false,

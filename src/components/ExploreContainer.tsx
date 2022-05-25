@@ -60,6 +60,7 @@ const ExploreContainer: React.FC<ContainerProps> = ({ name }) => {
   const [showToast, setShowToast] = useState(false);
   const [showSensorAlert, setSensorAlert] = useState(false);
   const [triggerId, setTriggerId] = useState("");
+  const [sendAlert, setSendAlert] = useState("no");
 
   const tabToRender = (name: string) => {
     switch (name) {
@@ -89,12 +90,6 @@ const ExploreContainer: React.FC<ContainerProps> = ({ name }) => {
               setTriggerId(docs.id);
               console.log("alertnow !!!");
               setSensorAlert(true);
-              setTimeout(() => {
-                console.log(">>> sending SOS automatically..", docs.id);
-                sendSOSconfirmation(docs.id);
-                setSensorAlert(false);
-                setShowCountdown(true);
-              }, 5000 * 2);
             }
           }
         });
@@ -111,9 +106,33 @@ const ExploreContainer: React.FC<ContainerProps> = ({ name }) => {
     };
   }, [memoizedSensorTrigger]);
 
+  useEffect(() => {
+    if (sendAlert === "yes") {
+      const timer = setTimeout(() => {
+        //send only if not abort
+        console.log(">>> sending SOS automatically..", triggerId);
+        sendSOSconfirmation(triggerId);
+        setSensorAlert(false);
+        setShowCountdown(true);
+      }, 5000 * 2);
+
+      return () => {
+        clearTimeout(timer);
+      };
+    }
+  }, [sendAlert]);
+
   const sendSOSconfirmation = async (triggerId: string) => {
+    setSendAlert("yes");
     await updateDoc(doc(db, "devices", deviceId, "triggers", triggerId), {
       shouldAlert: "yes",
+    });
+  };
+
+  const abortSOS = async (triggerId: string) => {
+    setSendAlert("abort");
+    await updateDoc(doc(db, "devices", deviceId, "triggers", triggerId), {
+      shouldAlert: "abort",
     });
   };
 
@@ -212,6 +231,7 @@ const ExploreContainer: React.FC<ContainerProps> = ({ name }) => {
               id: "cancel-button",
               handler: () => {
                 console.log("dismissed !");
+                abortSOS(triggerId);
               },
             },
             {
