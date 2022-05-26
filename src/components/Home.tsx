@@ -223,6 +223,7 @@ const Home: React.FC<ContainerProps> = () => {
         if (!sfdoc.exists()) {
           throw new Error("Document does not exist !");
         }
+        sendPushNotification();
         const listOfRecipients = [...sfdoc.data()?.people];
         listOfRecipients.forEach((item) => {
           let recipDocRef = doc(
@@ -241,6 +242,11 @@ const Home: React.FC<ContainerProps> = () => {
       console.error(err);
     }
     console.log("Pushed to firebase !");
+  };
+
+  const sendPushNotification = async () => {
+    const docRef = await addDoc(collection(db, "messages"), currentUserDetails);
+    console.log(">>> added to messages collection for push", docRef.id);
   };
 
   const updateToken = async (value: string) => {
