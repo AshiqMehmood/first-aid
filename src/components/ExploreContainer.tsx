@@ -55,12 +55,12 @@ const ExploreContainer: React.FC<ContainerProps> = ({ name }) => {
     setShowCountdown,
     deviceId,
     isDeviceConnected,
+    setSpeed,
   } = useStore();
   const [showPopover, setShowPopover] = useState(false);
   const [showToast, setShowToast] = useState(false);
   const [showSensorAlert, setSensorAlert] = useState(false);
   const [triggerId, setTriggerId] = useState("");
-  const [sendAlert, setSendAlert] = useState("no");
 
   const tabToRender = (name: string) => {
     switch (name) {
@@ -107,30 +107,37 @@ const ExploreContainer: React.FC<ContainerProps> = ({ name }) => {
   }, [memoizedSensorTrigger]);
 
   useEffect(() => {
-    if (sendAlert === "yes") {
+    if (showSensorAlert) {
+      console.log(">>>>>>> sensor alert popup active");
+      //send alert after 10s
       const timer = setTimeout(() => {
-        //send only if not abort
         console.log(">>> sending SOS automatically..", triggerId);
-        sendSOSconfirmation(triggerId);
         setSensorAlert(false);
+        updateAlertFirebase(triggerId);
         setShowCountdown(true);
-      }, 5000 * 2);
+        setSpeed("1");
+      }, 1000 * 10);
 
       return () => {
         clearTimeout(timer);
       };
     }
-  }, [sendAlert]);
+  }, [showSensorAlert]);
 
-  const sendSOSconfirmation = async (triggerId: string) => {
-    setSendAlert("yes");
+  const updateAlertFirebase = async (triggerId: string) => {
     await updateDoc(doc(db, "devices", deviceId, "triggers", triggerId), {
       shouldAlert: "yes",
     });
   };
 
+  const sendSOSconfirmation = async (triggerId: string) => {
+    updateAlertFirebase(triggerId);
+    setSensorAlert(false);
+    setShowCountdown(true);
+    setSpeed("1");
+  };
+
   const abortSOS = async (triggerId: string) => {
-    setSendAlert("abort");
     await updateDoc(doc(db, "devices", deviceId, "triggers", triggerId), {
       shouldAlert: "abort",
     });
