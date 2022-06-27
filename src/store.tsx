@@ -26,6 +26,7 @@ interface types {
     tokenId: string;
     people: Array<any>;
     place: string;
+    deviceStatus: string;
   };
   setCurrentUserDetails: (val: object) => void;
   selectedActivity: {
@@ -83,6 +84,7 @@ const useStore = create<types>((set: any) => ({
     tokenId: "",
     people: [],
     place: "",
+    deviceStatus: "",
   },
   setCurrentUserDetails: (val: object) =>
     set((state: object) => ({ currentUserDetails: val })),

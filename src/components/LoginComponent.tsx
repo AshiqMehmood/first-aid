@@ -97,6 +97,7 @@ const LoginComponent: React.FC<LoginProps> = ({ isLandingPage, exitModal }) => {
       timestamp: serverTimestamp(),
       tokenId: "token-#001-999",
       people: [],
+      deviceStatus: "offline",
     });
   };
 
@@ -177,7 +178,7 @@ const LoginComponent: React.FC<LoginProps> = ({ isLandingPage, exitModal }) => {
               <IonInput
                 onIonChange={(e) => {
                   //@ts-ignore
-                  setTextValue(e.detail.value?.toLowerCase());
+                  setTextValue(e.detail.value?.toLowerCase().trim());
                 }}
               ></IonInput>
             </IonItem>
@@ -186,7 +187,7 @@ const LoginComponent: React.FC<LoginProps> = ({ isLandingPage, exitModal }) => {
               <IonInput
                 onIonChange={(e) => {
                   //@ts-ignore
-                  setPlaceValue(e.detail.value?.toLowerCase());
+                  setPlaceValue(e.detail.value?.toLowerCase().trim());
                 }}
               ></IonInput>
             </IonItem>

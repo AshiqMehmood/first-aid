@@ -8,6 +8,8 @@ import {
   IonButton,
   IonInput,
   IonIcon,
+  IonRefresher,
+  IonRefresherContent,
 } from "@ionic/react";
 import {
   setDoc,
@@ -19,9 +21,14 @@ import {
   updateDoc,
   deleteDoc,
 } from "firebase/firestore";
-import { addOutline, trashBinOutline } from "ionicons/icons";
+import {
+  addOutline,
+  trashBinOutline,
+  chevronDownCircleOutline,
+} from "ionicons/icons";
 import useStore from "../store";
 import firebaseModules from "../firebaseService";
+import { RefresherEventDetail } from "@ionic/core";
 
 const { db } = firebaseModules;
 
@@ -56,11 +63,14 @@ const Settings: React.FC = () => {
           setConnectionSent(true);
         }
         if (docs.data().status === "approved") {
+          //update device status on firebase
+          updateDeviceStatus("connected");
           setDeviceConnection(true);
         }
       }
       // get update from device
     });
+    return querySnapshot;
   };
   const connectToDevice = async () => {
     //push to firebase
@@ -79,10 +89,35 @@ const Settings: React.FC = () => {
     console.log(">>>>removed", deviceId);
     const deviceDetails = doc(db, "devices", deviceId);
     await deleteDoc(deviceDetails);
+    updateDeviceStatus("offline");
     setDeviceConnection(false);
+    setDeviceId("SOS999");
   };
+
+  const updateDeviceStatus = async (status: string) => {
+    const userDetails = doc(db, "users", username);
+    await updateDoc(userDetails, {
+      deviceStatus: status,
+    });
+  };
+
+  const doRefresh = async (event: CustomEvent<RefresherEventDetail>) => {
+    const res = await checkDeviceConnection();
+    if (res) {
+      event.detail.complete();
+    }
+  };
+
   return (
     <div>
+      <IonRefresher slot="fixed" onIonRefresh={doRefresh}>
+        <IonRefresherContent
+          pullingIcon={chevronDownCircleOutline}
+          pullingText="pull to refresh"
+          refreshingSpinner="circles"
+          refreshingText="Sync in progress..."
+        ></IonRefresherContent>
+      </IonRefresher>
       <IonList>
         <IonListHeader>
           <IonLabel color="medium">Device Configuration</IonLabel>

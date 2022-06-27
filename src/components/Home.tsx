@@ -74,7 +74,7 @@ const Home: React.FC<ContainerProps> = () => {
     setShowCountdown,
     speed,
     setSpeed,
-    isDeviceConnected,
+    setDeviceConnection,
     currentUserDetails,
     setCurrentUserDetails,
     recipientCount,
@@ -140,6 +140,8 @@ const Home: React.FC<ContainerProps> = () => {
     const docs = await getDoc(userDetails);
     if (docs.exists()) {
       setCurrentUserDetails(docs.data());
+      if (docs.data().deviceStatus === "connected") setDeviceConnection(true);
+      else setDeviceConnection(false);
     }
   };
 
@@ -304,7 +306,9 @@ const Home: React.FC<ContainerProps> = () => {
             <div className="user-card-items">
               <IonLabel style={{ fontSize: ".7rem" }}>Device</IonLabel>
               <IonLabel style={{ fontSize: ".9rem", fontWeight: "bold" }}>
-                {isDeviceConnected ? "connected" : "offline"}
+                {currentUserDetails.deviceStatus
+                  ? currentUserDetails.deviceStatus
+                  : "NA"}
               </IonLabel>
             </div>
             <div className="user-card-items">
